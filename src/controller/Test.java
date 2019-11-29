@@ -13,9 +13,15 @@ public class Test {
 		Socket distant = new Socket() ; 
 		User send= new User("wyl", distant) ; */
 		
+		/*Conversation sender= new Conversation(1) ;
+		
 		Conversation listener= new Conversation(0) ;
-		Conversation sender= new Conversation(1) ;
-		sender.setMessage("coucou");
+		
+		sender.setMessage("coucou");*/
+		Client c = new Client() ; 
+		Server s = new Server() ; 
+		s.receive();
+		c.send(); 
 		
 	}
 
