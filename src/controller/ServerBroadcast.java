@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,9 @@ public class ServerBroadcast implements Runnable {
 	private int mode; // 0 envoie un broadcast et 1 attend de recevoir un broadcast
 	private int msgType;
 	
+	
+	private ArrayList<User> listOfConnected = new ArrayList<User>();
+
 	/** receiver
 	 * 
 	 * @param localuser
@@ -133,6 +138,8 @@ public class ServerBroadcast implements Runnable {
 				}
 			} else if (type.equals("1"))  {
 				System.out.println("type 1 = new connection");
+
+				this.listOfConnected.add(new User(pseudo,new Socket()));
 				//add in user list
 			} else if (type.equals("2")) {
 				System.out.println("type 2 = user leaving");

@@ -5,12 +5,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import model.User;
 
 public class Conversation implements Runnable {
 	private ServerSocket servSocket; 
 	private Socket link ;
 	private int mode ; 
 	private String message = "default"; 
+
+	private ArrayList<User> listOfConnected = new ArrayList<User>();
 
 	public void run() {
 		System.out.println("Conversation opened");

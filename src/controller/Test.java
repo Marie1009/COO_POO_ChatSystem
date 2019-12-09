@@ -3,6 +3,7 @@ package controller;
 import java.net.Socket;
 
 import model.User;
+import view.WelcomeFrame;
 
 public class Test {
 
@@ -28,8 +29,13 @@ public class Test {
 
 		/*Server s = new Server() ; 
 		s.receive();*/
-
-
+		WelcomeFrame testframe = new WelcomeFrame();
+		
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				testframe.createAndShowGUI();
+			}
+		});
 	}
 
 }
