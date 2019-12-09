@@ -1,10 +1,8 @@
 package controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -35,25 +33,33 @@ public class Conversation implements Runnable {
 	}
 	public void waitForMessage() {
 		try {
+		
 			this.servSocket = new ServerSocket(12543);
 			this.link = this.servSocket.accept();
-
-			InputStream in = link.getInputStream();
-			System.out.println(in.readAllBytes().toString()) ; 
-			/*BufferedReader br = new BufferedReader(new InputStreamReader(link.getInputStream()));
-			String m = br.readLine();
-			System.out.println("message reçu :"+m);*/
+			ObjectInputStream ois = new ObjectInputStream(link.getInputStream());
+            //convert ObjectInputStream object to String
+            String mes = (String) ois.readObject();
+            ois.close();
+			//InputStream in = link.getInputStream();
+			//byte[] b = new byte[50];
+			//in.read(b, 0, b.length) ; 
+			System.out.println(mes);
+			this.servSocket.close();
 			
-		}catch (IOException e) {e.printStackTrace();}
+		}catch (Exception e) {e.printStackTrace();}
 	}
 
 	public void send(String message) {
 		try {
 			this.link = new Socket("127.0.0.1",12543);
-
-			PrintWriter out = new PrintWriter(link.getOutputStream(),true); 
-			out.write(message);
+            ObjectOutputStream oos = new ObjectOutputStream(link.getOutputStream());
+            oos.writeObject(message);
+			//OutputStream out = link.getOutputStream(); 
+			//byte[] b = new byte[50];
+			//b = message.getBytes() ; 
+			//out.write(b, 0, b.length);
 			System.out.println("message envoyé : "+ message);
+			oos.close();
 
 		}catch (IOException e) {System.out.println("Error");}
 	}
