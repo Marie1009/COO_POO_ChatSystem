@@ -1,5 +1,5 @@
 
-
+package model;
 import java.net.Socket;
 
 public class User {
