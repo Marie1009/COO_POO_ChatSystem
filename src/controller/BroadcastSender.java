@@ -15,8 +15,8 @@ public class BroadcastSender implements Runnable {
 	static private int receiverPort = 50002; 
 	private User localuser; 
 	private BroadcastType msgType;
-	
-	
+
+
 
 
 
@@ -34,14 +34,14 @@ public class BroadcastSender implements Runnable {
 	 * @param localport
 	 */
 	public BroadcastSender(BroadcastType msgType) {
-	this.msgType = msgType;
+		this.msgType = msgType;
 		try {
 			this.ds = new DatagramSocket() ; 
 		} catch (IOException e) {e.printStackTrace();}
 		Thread th = new Thread(this); 
 		th.start();
 	}
-	
+
 	public BroadcastSender(String pseudo,BroadcastType msgType) {
 		this.msgType = msgType;
 		this.pseudoATester=pseudo;
@@ -77,7 +77,7 @@ public class BroadcastSender implements Runnable {
 			message = "3";
 			System.out.println(message);
 			this.sendBroadcast(message);
-			this.getBroadcastAnswer();
+			//this.getConnectedUsersAnswer();
 			break;
 		}
 	}
@@ -88,7 +88,7 @@ public class BroadcastSender implements Runnable {
 		this.localuser = localuser;
 	}
 
-	
+
 	public boolean getBroadcastAnswer() {
 		boolean res=false; 
 		try {
@@ -106,6 +106,30 @@ public class BroadcastSender implements Runnable {
 				res =  true;}
 		}catch(IOException e) {e.printStackTrace();}
 		return res ;
+	}
+
+	public ArrayList<String> getConnectedUsersAnswer() {
+		ArrayList<String> users = new ArrayList<String>() ;
+
+		while (true) {
+			try {  // set the timeout in millisecounds
+				ds.setSoTimeout(1000); 
+				try {
+					
+					byte[] buf = new byte[256] ; 
+					DatagramPacket inPacket = new DatagramPacket(buf, buf.length); 
+					ds.receive(inPacket);
+					String user = new String(inPacket.getData(), 0, inPacket.getLength()) ;
+					System.out.println(user+" is connected");
+					users.add(user) ; 
+				}catch(SocketTimeoutException e1) {
+					System.out.println("timeout reached");
+					ds.close(); 
+					break ;
+				}
+			}catch(IOException e) {e.printStackTrace();}
+		}
+		return users ;
 	}
 
 

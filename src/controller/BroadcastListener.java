@@ -20,7 +20,7 @@ public class BroadcastListener implements Runnable{
 	private String rcvdMessage;
 	private ArrayList<User> listOfConnected = new ArrayList<User>();
 
-	/** receiver
+	/** receiver	
 	 * 
 	 * @param localuser
 	 * @param localport
@@ -29,7 +29,7 @@ public class BroadcastListener implements Runnable{
 		this.localuser = localuser ; 
 
 		try {
-			this.ds = new DatagramSocket(port) ; 
+			this.ds = new DatagramSocket(this.port) ; 
 		} catch (IOException e) {e.printStackTrace();}
 		Thread th = new Thread(this); 
 		th.start();
@@ -90,16 +90,24 @@ public class BroadcastListener implements Runnable{
 		}		
 	}
 
-
 	private void sendConnected(int port) {
-		String answer = "UserConnected: "+this.localuser.getPseudo() ;
+		String answer = this.localuser.getPseudo() ;
 		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, port);
 		try {
 			this.ds.send(outPacket) ; 
-			System.out.println("response sent");
+			System.out.println("response connected sent");
 		} catch (IOException e) {System.err.println("send() failed");}
 	}
 
+	private void sendNotUnique(int port) {
+		String answer = this.localuser.getPseudo() ;
+		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, port);
+		try {
+			this.ds.send(outPacket) ; 
+			System.out.println("response not unique sent");
+		} catch (IOException e) {System.err.println("send() failed");}
+	}
+	
 	public ArrayList<User> getListOfConnected() {
 		return listOfConnected;
 	}
@@ -108,14 +116,6 @@ public class BroadcastListener implements Runnable{
 		this.listOfConnected = listOfConnected;
 	}
 
-	private void sendNotUnique(int port) {
-		String answer = "AlreadyUsed: "+this.localuser.getPseudo() ;
-		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, port);
-		try {
-			this.ds.send(outPacket) ; 
-			System.out.println("response sent");
-		} catch (IOException e) {System.err.println("send() failed");}
-	}	
 }
 
 
