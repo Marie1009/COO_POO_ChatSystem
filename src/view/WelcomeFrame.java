@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,13 +19,12 @@ import javax.swing.JTextField;
 import controller.BroadcastSender;
 import model.BroadcastType;
 
-public class WelcomeFrame implements ActionListener {
+public class WelcomeFrame implements ActionListener, WindowListener {
 	JFrame firstpageFrame;
 	JPanel pagePanel;
 	JTextField pseudoField;
 	JLabel welcomeLabel;
 	JButton loginButton;
-
 
 	public WelcomeFrame() {
 		//Create and set up the window.
@@ -33,7 +34,6 @@ public class WelcomeFrame implements ActionListener {
 
 		//Create and set up the panel.
 		pagePanel = new JPanel(new GridLayout(3, 1));
-
 		//Add the widgets.
 		addWidgets();
 
@@ -62,6 +62,7 @@ public class WelcomeFrame implements ActionListener {
 
 		welcomeLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		loginButton.addActionListener(this);
+		firstpageFrame.addWindowListener(this);
 	}
 
 
@@ -81,6 +82,59 @@ public class WelcomeFrame implements ActionListener {
 				JOptionPane.showMessageDialog(new JFrame(), "Pseudo Already Used");
 			}
 		}
+	}
+	
+	public void windowClosed(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+    }
+
+
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+	
+	}
+
+
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("fenêtre fermée welcom frame");
+	}
+
+
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

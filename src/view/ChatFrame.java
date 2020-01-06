@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -21,10 +24,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import controller.BroadcastListener;
 import controller.BroadcastSender;
 import model.BroadcastType;
+import model.User;
 
-public class ChatFrame implements ActionListener{
+public class ChatFrame implements ActionListener, WindowListener{
 
 	JFrame chatFrame;
 	JPanel listPanel;
@@ -35,10 +40,14 @@ public class ChatFrame implements ActionListener{
 	JButton logoutButton;
 	JMenuBar listOfUsers; 
 	JMenu usersMenu; 
+	String pseudo ; 
+	BroadcastListener bl ; 
+
 	public ChatFrame(String pseudo) {
-
-
-		//Create and set up the window.
+		this.pseudo = pseudo ; 
+		bl = new BroadcastListener(new User(pseudo, new Socket()))	; 
+				
+				//Create and set up the window.
 		chatFrame = new JFrame("Chat session opened for "+ pseudo);
 		chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		chatFrame.setSize(new Dimension(120, 40));
@@ -102,7 +111,7 @@ public class ChatFrame implements ActionListener{
 		this.chatFrame.setJMenuBar(listOfUsers);
 
 		//convPanel.add(messageField);
-
+		chatFrame.addWindowListener(this);
 		logoutButton.addActionListener(this);
 
 	}
@@ -121,5 +130,49 @@ public class ChatFrame implements ActionListener{
 		}
 
 
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("fenêtre fermée chat frame");
+		bl.stop() ; 
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

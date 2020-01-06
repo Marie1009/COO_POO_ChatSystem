@@ -19,7 +19,8 @@ public class BroadcastListener implements Runnable{
 	private InetAddress clientAddress;
 	private String rcvdMessage;
 	private ArrayList<User> listOfConnected = new ArrayList<User>();
-
+	private volatile boolean isStopped ; 
+	
 	/** receiver	
 	 * 
 	 * @param localuser
@@ -43,7 +44,7 @@ public class BroadcastListener implements Runnable{
 
 		byte[] buf = new byte[256] ; 
 		DatagramPacket inPacket = new DatagramPacket(buf, buf.length); 
-		while (true) {
+		while (!isStopped) {
 			try {
 				this.ds.receive(inPacket);					
 				System.out.println("received");
@@ -59,6 +60,14 @@ public class BroadcastListener implements Runnable{
 
 	}
 
+	public void stop() {
+		isStopped = true ; 
+		try {
+			ds.close();
+			System.out.println("socket ds closed");
+		} catch (Exception e) {e.printStackTrace();}		
+	}
+	
 	private void response(int port) {
 		String regex= "^([0-3])(\\w*)$" ; 
 		Pattern p = Pattern.compile(regex) ;      

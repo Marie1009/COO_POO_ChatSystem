@@ -2,11 +2,17 @@ package model;
 
 import java.io.Serializable;
 
-public abstract class Message implements Serializable { //conseil de ruben et matthieu : implémenter Serializable : permet de mettre un peu n'importe quoi dans un objet et de l'envoyer
+//mettre l'enumération dans la classe direct. on peut alors tester direct le type au lieu de faire regex dégueu
+public class Message implements Serializable { //conseil de ruben et matthieu : implémenter Serializable : permet de mettre un peu n'importe quoi dans un objet et de l'envoyer
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private User dest; 
+	private String content ; 
 	
-	public Message(User dest) {
-		this.dest= dest ; 
+	public Message(String content) {
+		this.content= content ; 
 	}
 	
 	public void send() {
@@ -15,5 +21,13 @@ public abstract class Message implements Serializable { //conseil de ruben et ma
 	
 	public String toString() {
 		return " "; 
+	}
+	
+	public String getContent( ) {
+		return this.content ; 
+	}
+	
+	public void setContent(String content) {
+		this.content = content ; 
 	}
 }

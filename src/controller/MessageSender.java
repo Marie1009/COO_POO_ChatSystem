@@ -10,7 +10,8 @@ public class MessageSender implements Runnable {
 
 	
 
-	public MessageSender() {
+	public MessageSender(String message) {
+		this.message = message ; 
 		Thread th = new Thread(this); 
 		th.start();
 	}

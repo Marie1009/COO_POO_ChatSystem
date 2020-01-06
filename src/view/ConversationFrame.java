@@ -2,6 +2,10 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -11,44 +15,135 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class ConversationFrame {
-	JFrame conversationFrame;
-	JScrollPane convPane;
-	JTextArea convArea;
+import controller.MessageSender;
+import controller.MessageWaiter;
+
+public class ConversationFrame implements ActionListener, WindowListener{
+	private JFrame conversationFrame;
+	private JScrollPane convPane;
+	private JTextArea convArea;
 	//JTextField messageToSendField ; 
-	JButton sendButton;
-	JPanel convPanel ;
+	private JButton sendButton;
+	private JPanel convPanel ;
+	private MessageWaiter mw ;
+	
 	public ConversationFrame(String pseudo) {
 		//Create and set up the window.
-				conversationFrame = new JFrame("Conversation opened with "+pseudo);
-				conversationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			//	conversationFrame.setPreferredSize(new Dimension(450, 110));
-				convPanel = new JPanel(); 
-				conversationFrame.add(convPanel) ; 
-				
-				//Add the widgets.
-				addWidgets();
+		conversationFrame = new JFrame("Conversation opened with "+pseudo);
+		conversationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//	conversationFrame.setPreferredSize(new Dimension(450, 110));
+		convPanel = new JPanel(); 
+		conversationFrame.add(convPanel) ; 
 
-				//Display the window.
-				conversationFrame.pack();
-				conversationFrame.setLocationRelativeTo(null);
-				conversationFrame.setVisible(true);
-		
+		mw = new MessageWaiter(); 
+		//Add the widgets.
+		addWidgets();
+
+		//Display the window.
+		conversationFrame.pack();
+		conversationFrame.setLocationRelativeTo(null);
+		conversationFrame.setVisible(true);
+
 	}
-	
+
 	private void addWidgets() {
-	
+
 		convArea = new JTextArea();
 		convPane = new JScrollPane(convArea);
 		convPane.setPreferredSize(new Dimension(300,50));
-		
+
 		//messageToSendField = new JTextField("default"); 
 		sendButton = new JButton("SEND") ; 
-		
+
 		JLabel truc = new JLabel("coucou"); 
 		convPanel.add(truc); 
 		convPanel.add(convPane);
 		//convPane.add(messageToSendField); 
 		convPanel.add(sendButton); 
+		sendButton.addActionListener(this);
+
 	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		String event = e.getActionCommand() ; 
+		System.out.println(event);
+		if (event.equals("SEND")) {
+			MessageSender ms = new MessageSender(convArea.getText())  ;
+		}
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("fenêtre fermée conversation frame");
+		this.mw.stop();
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
