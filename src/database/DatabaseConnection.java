@@ -1,5 +1,8 @@
 package database;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -47,7 +50,7 @@ public class DatabaseConnection {
 		return conn;
 	}
 
-	public static void createNewTable() {
+	public static void createNewTableMessages() {
 
 		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS messages ( "
@@ -63,9 +66,27 @@ public class DatabaseConnection {
 			System.out.println(e.getMessage());
 		}
 	}
+	public static void createNewTableUsers() {
+
+		// SQL statement for creating a new table
+		String sql = "CREATE TABLE IF NOT EXISTS users ( "
+				+ "pseudo TEXT NOT NULL,"
+				+ "ipAddress TEXT);" ;
+		
+		String query = "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pseudo ON users(pseudo);";
+
+		try (Connection conn = connect();
+				Statement stmt = conn.createStatement()) {
+			// create a new table
+			stmt.execute(sql);
+			stmt.execute(query);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 
 
-	public static void insert(User u, Message m) {
+	public static void insertMessage(User u, Message m) {
 		String sql = "INSERT INTO messages(user, message) VALUES(?,?)";
 
 		try (Connection conn = connect();
@@ -79,10 +100,24 @@ public class DatabaseConnection {
 			System.out.println(e.getMessage());
 		}
 	}
+	public static void insertUser(User u ) {
+		String sql = "REPLACE INTO users(pseudo, ipAddress) VALUES(?,?)";
+		
+		try (Connection conn = connect();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) 
+		{
+
+			pstmt.setString(1, u.getPseudo());
+			pstmt.setString(2, u.getSckt().getInetAddress().toString());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 
 
 
-	public static void selectAll(){
+	public static void selectAllMessages(){
 		String sql = "SELECT user, message, date FROM messages";
 
 		try (Connection conn = connect();
@@ -100,7 +135,23 @@ public class DatabaseConnection {
 		}
 	}
 
-	public static void select(User user){
+	public static void selectAllUsers(){
+		String sql = "SELECT pseudo, ipAddress FROM users";
+
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement();
+				ResultSet rs    = stmt.executeQuery(sql)){
+
+			// loop through the result set
+			while (rs.next()) {
+				System.out.println(rs.getString("pseudo") +  "\t" + 
+						rs.getString("ipAddress")) ;
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	public static void selectHistory(User user){
 		String sql = "SELECT user, message, date "
 				+ "FROM messages "
 				+ "WHERE user = '"+user.getPseudo()+"'";
@@ -119,5 +170,24 @@ public class DatabaseConnection {
 			e.printStackTrace();
 
 		}
+	}
+	
+	public static String selectIp(User user){
+		String sql = "SELECT pseudo, ipAddress"
+				+ "FROM users "
+				+ "WHERE pseudo = '"+user.getPseudo()+"'";
+		String ip = "";
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			ResultSet rs    = stmt.executeQuery(sql) ; 
+			// loop through the result set
+			ip = rs.getString("ip") ;			
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+		
+		return ip;
 	}
 }

@@ -2,19 +2,17 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,24 +20,28 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 
 import controller.BroadcastListener;
 import controller.BroadcastSender;
+import controller.MessageWaiter;
+import database.DatabaseConnection;
 import model.BroadcastType;
 import model.User;
 
 public class ChatFrame implements ActionListener, WindowListener{
 
-	JFrame chatFrame;
-	JPanel listPanel;
+	private JFrame chatFrame;
+	private JPanel listPanel;
 	//JPanel convPanel;
-	JScrollPane conversationPane;
-	JTextField messageField;
-	JTextArea convArea;
-	JButton logoutButton;
-	JMenuBar listOfUsers; 
-	JMenu usersMenu; 
+	private JScrollPane conversationPane;
+	private JTextField messageField;
+	private JTextArea convArea;
+	private JButton logoutButton;
+	private JMenuBar listOfUsers; 
+	private JMenu usersMenu; 
+	private JButton refreshButton;
+	
 	String pseudo ; 
 	BroadcastListener bl ; 
 
@@ -80,7 +82,8 @@ public class ChatFrame implements ActionListener, WindowListener{
 		chatFrame.pack();
 		chatFrame.setLocationRelativeTo(null);
 		chatFrame.setVisible(true);
-
+		
+		
 	}
 
 	private void addWidgets() {
@@ -101,9 +104,11 @@ public class ChatFrame implements ActionListener, WindowListener{
 		usersMenu = new JMenu("Users") ; 
 		conversationPane = new JScrollPane();
 		convArea = new JTextArea(5,30);
+		refreshButton = new JButton("REFRESH");
 
 		listOfUsers.add(usersMenu); 
 		listPanel.add(logoutButton);
+		listPanel.add(refreshButton);
 
 		//conversationPane.add(messageField);
 		conversationPane.add(convArea);
@@ -113,7 +118,7 @@ public class ChatFrame implements ActionListener, WindowListener{
 		//convPanel.add(messageField);
 		chatFrame.addWindowListener(this);
 		logoutButton.addActionListener(this);
-
+		refreshButton.addActionListener(this);
 	}
 
 
@@ -125,8 +130,32 @@ public class ChatFrame implements ActionListener, WindowListener{
 		if(event.equals("LOGOUT")) {
 			chatFrame.setVisible(false);
 			WelcomeFrame wf = new WelcomeFrame(); 
-		} else {
-			ConversationFrame cf = new ConversationFrame(event); 
+		}else if (event.equals("refreshButton")) {
+			
+			ArrayList<String> users = bl.getListOfConnected();
+			System.out.println(users.get(0));
+			Iterator<String> it = users.iterator() ; 
+			while (it.hasNext()) {
+				JMenuItem mi = new JMenuItem(it.next()); 
+				this.usersMenu.add(mi); 
+				mi.addActionListener(this);
+			}
+			listOfUsers.add(usersMenu); 
+			this.chatFrame.setJMenuBar(listOfUsers);
+
+
+			//chatFrame.validate();
+			//chatFrame.repaint();
+		}
+		else {
+			try {
+				User u = new User(event,new Socket());
+				DatabaseConnection.selectAllUsers();
+				u.setSckt(new Socket(InetAddress.getByName(DatabaseConnection.selectIp(u)),MessageWaiter.CONVERSATION_PORT));
+				ConversationFrame cf = new ConversationFrame(u); 
+			}catch(Exception ex) {ex.printStackTrace();}
+			
+			
 		}
 
 

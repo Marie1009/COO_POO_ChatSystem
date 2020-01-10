@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,10 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import controller.MessageSender;
 import controller.MessageWaiter;
+import database.DatabaseConnection;
+import model.Message;
+import model.User;
 
 public class ConversationFrame implements ActionListener, WindowListener{
 	private JFrame conversationFrame;
@@ -26,10 +27,12 @@ public class ConversationFrame implements ActionListener, WindowListener{
 	private JButton sendButton;
 	private JPanel convPanel ;
 	private MessageWaiter mw ;
+	private User dest;
 	
-	public ConversationFrame(String pseudo) {
+	public ConversationFrame(User dest) {
+		this.dest = dest;
 		//Create and set up the window.
-		conversationFrame = new JFrame("Conversation opened with "+pseudo);
+		conversationFrame = new JFrame("Conversation opened with "+dest.getPseudo());
 		conversationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//	conversationFrame.setPreferredSize(new Dimension(450, 110));
 		convPanel = new JPanel(); 
@@ -54,6 +57,7 @@ public class ConversationFrame implements ActionListener, WindowListener{
 
 		//messageToSendField = new JTextField("default"); 
 		sendButton = new JButton("SEND") ; 
+		
 
 		JLabel truc = new JLabel("coucou"); 
 		convPanel.add(truc); 
@@ -69,8 +73,12 @@ public class ConversationFrame implements ActionListener, WindowListener{
 		// TODO Auto-generated method stub
 		String event = e.getActionCommand() ; 
 		System.out.println(event);
+		
 		if (event.equals("SEND")) {
-			MessageSender ms = new MessageSender(convArea.getText())  ;
+			
+			Message message = new Message(convArea.getText());
+			MessageSender ms = new MessageSender(dest,message)  ;
+			DatabaseConnection.insertMessage(dest, message);
 		}
 	}
 

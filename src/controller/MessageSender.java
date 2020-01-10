@@ -2,15 +2,18 @@ package controller;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
+
+import model.Message;
+import model.User;
 
 public class MessageSender implements Runnable {
-	private Socket link ;
-	private String message = "default"; 
-
+	
+	private Message message ; 
+	private User dest;
 	
 
-	public MessageSender(String message) {
+	public MessageSender(User dest, Message message) {
+		this.dest = dest;
 		this.message = message ; 
 		Thread th = new Thread(this); 
 		th.start();
@@ -20,26 +23,28 @@ public class MessageSender implements Runnable {
 		System.out.println("Conversation opened");
 		try {
 
-			this.send(message);
-			this.link.close();
+			this.send();
+			this.dest.getSckt().close();
 
 		} catch(IOException e) {e.printStackTrace();}
 	}
 
-	public void send(String message) {
+	public void send() {
 		
 		try {
-			this.link = new Socket("127.0.0.1",12543);
-			ObjectOutputStream oos = new ObjectOutputStream(link.getOutputStream());
-			oos.writeObject(message);
-			System.out.println("message envoyé : "+ message);
+			
+			ObjectOutputStream oos = new ObjectOutputStream(this.dest.getSckt().getOutputStream());
+			
+			oos.writeObject(message.getContent());
+			System.out.println("message envoyé : "+ message.getContent());
+			
 			oos.close();
 
 		}catch (IOException e) {System.out.println("Error");}
 	}
 
 
-	public void setMessage(String message) {
+	public void setMessage(Message message) {
 		this.message = message ; 
 	}
 

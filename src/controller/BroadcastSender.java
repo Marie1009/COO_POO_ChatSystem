@@ -4,15 +4,17 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
+import database.DatabaseConnection;
 import model.BroadcastType;
 import model.User;
 
 public class BroadcastSender implements Runnable {
 	private DatagramSocket ds ;  
-	static private int receiverPort = 50002; 
+	static private int receiverPort = 50003; 
 	private User localuser; 
 	private BroadcastType msgType;
 
@@ -22,7 +24,6 @@ public class BroadcastSender implements Runnable {
 
 	private boolean pseudoUnique= true;
 
-	private ArrayList<User> listOfConnected = new ArrayList<User>();
 	private String pseudoATester;
 
 
@@ -122,6 +123,8 @@ public class BroadcastSender implements Runnable {
 					String user = new String(inPacket.getData(), 0, inPacket.getLength()) ;
 					System.out.println(user+" is connected");
 					users.add(user) ; 
+					User newUser = new User(user,new Socket(inPacket.getAddress(),MessageWaiter.CONVERSATION_PORT));
+					DatabaseConnection.insertUser(newUser);
 				}catch(SocketTimeoutException e1) {
 					System.out.println("timeout reached");
 					ds.close(); 

@@ -9,16 +9,17 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import database.DatabaseConnection;
 import model.User;
 
 public class BroadcastListener implements Runnable{
 
 	private User localuser;
-	private int port = 50002;
+	private int port = 50003;
 	private DatagramSocket ds;
 	private InetAddress clientAddress;
 	private String rcvdMessage;
-	private ArrayList<User> listOfConnected = new ArrayList<User>();
+	private ArrayList<String> listOfConnected = new ArrayList<String>();
 	private volatile boolean isStopped ; 
 	
 	/** receiver	
@@ -83,13 +84,20 @@ public class BroadcastListener implements Runnable{
 				}
 			} else if (type.equals("1"))  {
 				System.out.println("type 1 = new connection");
-
-				this.listOfConnected.add(new User(pseudo,new Socket()));
+				try {
+				User newUser = new User(pseudo,new Socket(this.clientAddress,MessageWaiter.CONVERSATION_PORT));
+				
+				this.listOfConnected.add(pseudo);
 				//add in user list
+				DatabaseConnection.insertUser(newUser);
+				
+				}catch(IOException ie) {System.out.println("ERROR NEW USER ");}
+				
 				
 			} else if (type.equals("2")) {
 				System.out.println("type 2 = user leaving");
 				//remove from user list
+				this.listOfConnected.remove(pseudo);
 				
 			} else if (type.equals("3")) {
 				System.out.println("type 3 = connected users ?");
@@ -117,11 +125,11 @@ public class BroadcastListener implements Runnable{
 		} catch (IOException e) {System.err.println("send() failed");}
 	}
 	
-	public ArrayList<User> getListOfConnected() {
+	public ArrayList<String> getListOfConnected() {
 		return listOfConnected;
 	}
 
-	public void setListOfConnected(ArrayList<User> listOfConnected) {
+	public void setListOfConnected(ArrayList<String> listOfConnected) {
 		this.listOfConnected = listOfConnected;
 	}
 

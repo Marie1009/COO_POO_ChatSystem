@@ -9,6 +9,7 @@ public class MessageWaiter implements Runnable {
 	private ServerSocket servSocket; 
 	private Socket link ;
 	private volatile boolean isStopped ; 
+	public static final int CONVERSATION_PORT = 12345;
 
 	public void run() {
 		System.out.println("Conversation opened");
