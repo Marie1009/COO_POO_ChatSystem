@@ -9,9 +9,29 @@ public class Message implements Serializable { //conseil de ruben et matthieu : 
 	 */
 	private static final long serialVersionUID = 1L;
 	private User dest; 
+	private User src ; 
+	
+	public User getSrc() {
+		return src;
+	}
+
+	public void setSrc(User src) {
+		this.src = src;
+	}
+
+	public User getDest() {
+		return dest;
+	}
+
+	public void setDest(User dest) {
+		this.dest = dest;
+	}
+
 	private String content ; 
 	
-	public Message(String content) {
+	public Message(String content, User dest, User src) {
+		this.src = src ; 
+		this.dest = dest; 
 		this.content= content ; 
 	}
 	

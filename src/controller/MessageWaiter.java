@@ -1,15 +1,17 @@
 package controller;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import database.DatabaseConnection;
+import model.Message;
 
 public class MessageWaiter implements Runnable {
 	private ServerSocket servSocket; 
 	private Socket link ;
 	private volatile boolean isStopped ; 
-	public static final int CONVERSATION_PORT = 12345;
+	public static final int CONVERSATION_PORT = 12347;
 
 	public void run() {
 		System.out.println("Conversation opened");
@@ -34,13 +36,15 @@ public class MessageWaiter implements Runnable {
 	public void waitForMessage() {
 		try {
 
-			this.servSocket = new ServerSocket(12543);
+			this.servSocket = new ServerSocket(CONVERSATION_PORT);
 			while(!isStopped) {
 				this.link = this.servSocket.accept();
 				ObjectInputStream ois = new ObjectInputStream(link.getInputStream());
-				String mes = (String) ois.readObject();
+				Message mes = (Message) ois.readObject();
+				
 				ois.close();
-				System.out.println("received "+mes);
+				System.out.println("received "+mes.getContent()+" "+mes.getSrc().getPseudo());
+				DatabaseConnection.insertMessage(mes);
 			}
 
 		}catch (Exception e) {e.printStackTrace();}

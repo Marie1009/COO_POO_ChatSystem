@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -20,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import controller.BroadcastListener;
 import controller.BroadcastSender;
@@ -35,22 +35,24 @@ public class ChatFrame implements ActionListener, WindowListener{
 	private JPanel listPanel;
 	//JPanel convPanel;
 	private JScrollPane conversationPane;
-	private JTextField messageField;
 	private JTextArea convArea;
 	private JButton logoutButton;
 	private JMenuBar listOfUsers; 
 	private JMenu usersMenu; 
 	private JButton refreshButton;
-	
-	String pseudo ; 
-	BroadcastListener bl ; 
+	private MessageWaiter mw ; 
+	private String pseudo ; 
+	private BroadcastListener bl ; 
 
 	public ChatFrame(String pseudo) {
 		this.pseudo = pseudo ; 
-		bl = new BroadcastListener(new User(pseudo, new Socket()))	; 
-				
-				//Create and set up the window.
-		chatFrame = new JFrame("Chat session opened for "+ pseudo);
+		
+		bl = new BroadcastListener(this.pseudo)	; 
+		BroadcastSender bs = new BroadcastSender(this.pseudo, BroadcastType.NEW_CONNECTION) ; 
+		
+
+		//Create and set up the window.
+		chatFrame = new JFrame("Chat session opened for "+ this.pseudo);
 		chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		chatFrame.setSize(new Dimension(120, 40));
 
@@ -61,10 +63,10 @@ public class ChatFrame implements ActionListener, WindowListener{
 		//Add the widgets.
 		addWidgets();
 
+		this.mw = new MessageWaiter() ;
 		//get connected users list and display it in the menu bar
-		BroadcastSender bs = new BroadcastSender(BroadcastType.CONNECTED_USERS) ; 
-		ArrayList<String> users = bs.getConnectedUsersAnswer();
-		System.out.println(users.get(0));
+		ArrayList<String> users = bl.getListOfConnected();
+		//System.out.println(users.get(0));
 		Iterator<String> it = users.iterator() ; 
 		while (it.hasNext()) {
 			JMenuItem mi = new JMenuItem(it.next()); 
@@ -82,23 +84,11 @@ public class ChatFrame implements ActionListener, WindowListener{
 		chatFrame.pack();
 		chatFrame.setLocationRelativeTo(null);
 		chatFrame.setVisible(true);
-		
-		
+
+
 	}
 
 	private void addWidgets() {
-		/*BroadcastSender bs = new BroadcastSender(BroadcastType.CONNECTED_USERS) ; 
-    	ArrayList<String> users = bs.getConnectedUsersAnswer();
-
-    	DefaultListModel<String> l1 = new DefaultListModel<>();  
-    	Iterator<String> it = users.iterator() ; 
-    	while (it.hasNext()) {
-    		l1.addElement(it.next());
-    	} 
-       	this.listOfUsers = new JList<>(l1);  
-        listOfUsers.setBounds(100,100, 75,75); */
-
-		messageField = new JTextField();
 		logoutButton = new JButton("LOGOUT");
 		listOfUsers = new JMenuBar();
 		usersMenu = new JMenu("Users") ; 
@@ -130,32 +120,37 @@ public class ChatFrame implements ActionListener, WindowListener{
 		if(event.equals("LOGOUT")) {
 			chatFrame.setVisible(false);
 			WelcomeFrame wf = new WelcomeFrame(); 
-		}else if (event.equals("refreshButton")) {
-			
+		}else if (event.equals("REFRESH")) {
+
 			ArrayList<String> users = bl.getListOfConnected();
-			System.out.println(users.get(0));
+
 			Iterator<String> it = users.iterator() ; 
 			while (it.hasNext()) {
 				JMenuItem mi = new JMenuItem(it.next()); 
 				this.usersMenu.add(mi); 
 				mi.addActionListener(this);
 			}
+
 			listOfUsers.add(usersMenu); 
+
 			this.chatFrame.setJMenuBar(listOfUsers);
 
 
-			//chatFrame.validate();
-			//chatFrame.repaint();
+			chatFrame.validate();
+			chatFrame.repaint();
 		}
+		//quand on clique sur un item du menu (un user)
 		else {
 			try {
-				User u = new User(event,new Socket());
-				DatabaseConnection.selectAllUsers();
-				u.setSckt(new Socket(InetAddress.getByName(DatabaseConnection.selectIp(u)),MessageWaiter.CONVERSATION_PORT));
-				ConversationFrame cf = new ConversationFrame(u); 
+				//on met une ip au pif pour commencer et on la set juste après
+				User distant = new User(event,InetAddress.getByName("localhost"));
+				distant.setIp(InetAddress.getByName(DatabaseConnection.selectIp(distant)));
+				//DatabaseConnection.selectAllUsers();
+				User self = new User(this.pseudo, InetAddress.getByName("localhost")) ; 
+				ConversationFrame cf = new ConversationFrame(distant, self); 
 			}catch(Exception ex) {ex.printStackTrace();}
-			
-			
+
+
 		}
 
 
@@ -164,7 +159,7 @@ public class ChatFrame implements ActionListener, WindowListener{
 	@Override
 	public void windowOpened(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -172,36 +167,38 @@ public class ChatFrame implements ActionListener, WindowListener{
 		// TODO Auto-generated method stub
 		System.out.println("fenêtre fermée chat frame");
 		bl.stop() ; 
-		
+		mw.stop();
+		BroadcastSender bs = new BroadcastSender(pseudo,BroadcastType.USER_LEAVING) ;
+
 	}
 
 	@Override
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowIconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowActivated(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

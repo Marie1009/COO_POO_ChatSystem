@@ -1,15 +1,28 @@
 
 package model;
-import java.net.Socket;
+import java.io.Serializable;
+import java.net.InetAddress;
 
-public class User {
+public class User implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String pseudo; 
-	private Socket sckt ;
+	private InetAddress ip ; 
 	
-	public User(String pseudo, Socket sckt) {
-		super();
+	public InetAddress getIp() {
+		return ip;
+	}
+
+
+	public void setIp(InetAddress ip) {
+		this.ip = ip;
+	}
+
+	public User(String pseudo, InetAddress ip) {
 		this.pseudo = pseudo;
-		this.sckt = sckt;
+		this.ip = ip; 
 	}
 
 	public String getPseudo() {
@@ -20,13 +33,6 @@ public class User {
 		this.pseudo = pseudo;
 	}
 
-	public Socket getSckt() {
-		return sckt;
-	}
-
-	public void setSckt(Socket sckt) {
-		this.sckt = sckt;
-	} 
 	
 	
 	

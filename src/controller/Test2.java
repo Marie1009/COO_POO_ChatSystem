@@ -2,7 +2,9 @@ package controller;
 
 import java.net.Socket;
 
+import database.DatabaseConnection;
 import model.User;
+import view.WelcomeFrame;
 
 public class Test2 {
 
@@ -12,10 +14,15 @@ public class Test2 {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		User lolz= new User("wylenolf", new Socket()) ;
-		
+		//User lolz= new User("wylenolf", new Socket()) ;
+		DatabaseConnection.createNewDatabase("history.db");
+
+		DatabaseConnection.createNewTableUsers();
+		DatabaseConnection.createNewTableMessages();
+
+		WelcomeFrame wf = new WelcomeFrame() ; 
 		//lance un faux utilisateur dont le pseudo est wylenolf qui permet de tester les requêtes pseudo unique et connected users
-		BroadcastListener fu = new BroadcastListener(lolz) ;// attend
+		//BroadcastListener fu = new BroadcastListener(lolz) ;// attend
 	}
 
 }

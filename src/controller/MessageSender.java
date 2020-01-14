@@ -2,51 +2,34 @@ package controller;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 
+import database.DatabaseConnection;
 import model.Message;
-import model.User;
 
 public class MessageSender implements Runnable {
-	
-	private Message message ; 
-	private User dest;
-	
 
-	public MessageSender(User dest, Message message) {
-		this.dest = dest;
+	private Message message ; 
+
+
+	public MessageSender(Message message) {
 		this.message = message ; 
 		Thread th = new Thread(this); 
 		th.start();
 	}
-	
+
 	public void run() {
 		System.out.println("Conversation opened");
 		try {
+			Socket s = new Socket(message.getDest().getIp(), MessageWaiter.CONVERSATION_PORT) ; 
+			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 
-			this.send();
-			this.dest.getSckt().close();
-
-		} catch(IOException e) {e.printStackTrace();}
-	}
-
-	public void send() {
-		
-		try {
-			
-			ObjectOutputStream oos = new ObjectOutputStream(this.dest.getSckt().getOutputStream());
-			
-			oos.writeObject(message.getContent());
+			oos.writeObject(message);
 			System.out.println("message envoyé : "+ message.getContent());
-			
+			DatabaseConnection.insertMessage(message);
 			oos.close();
-
-		}catch (IOException e) {System.out.println("Error");}
+			s.close();
+		}catch (IOException e) {e.printStackTrace();}
 	}
-
-
-	public void setMessage(Message message) {
-		this.message = message ; 
-	}
-
 
 }

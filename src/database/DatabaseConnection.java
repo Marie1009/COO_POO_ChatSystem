@@ -54,7 +54,8 @@ public class DatabaseConnection {
 
 		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS messages ( "
-				+ "user TEXT,"
+				+ "src TEXT,"				
+				+ "dest TEXT,"
 				+ "message TEXT," 
 				+ "date TEXT DEFAULT CURRENT_TIMESTAMP) ;";
 
@@ -86,15 +87,15 @@ public class DatabaseConnection {
 	}
 
 
-	public static void insertMessage(User u, Message m) {
-		String sql = "INSERT INTO messages(user, message) VALUES(?,?)";
+	public static void insertMessage(Message m) {
+		String sql = "INSERT INTO messages(src, dest, message) VALUES(?,?,?)";
 
 		try (Connection conn = connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)) 
 		{
-
-			pstmt.setString(1, u.getPseudo());
-			pstmt.setString(2, m.getContent());
+			pstmt.setString(1, m.getSrc().getPseudo());
+			pstmt.setString(2, m.getDest().getPseudo());
+			pstmt.setString(3, m.getContent());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -108,7 +109,7 @@ public class DatabaseConnection {
 		{
 
 			pstmt.setString(1, u.getPseudo());
-			pstmt.setString(2, u.getSckt().getInetAddress().toString());
+			pstmt.setString(2, u.getIp().getHostAddress());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -118,7 +119,7 @@ public class DatabaseConnection {
 
 
 	public static void selectAllMessages(){
-		String sql = "SELECT user, message, date FROM messages";
+		String sql = "SELECT src, dest, message, date FROM messages";
 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement();
@@ -126,7 +127,8 @@ public class DatabaseConnection {
 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getString("user") +  "\t" + 
+				System.out.println(rs.getString("src") +  "\t" + 
+						rs.getString("dest") +  "\t" + 
 						rs.getString("message") + "\t" +
 						rs.getString("date"));
 			}
@@ -152,9 +154,9 @@ public class DatabaseConnection {
 		}
 	}
 	public static void selectHistory(User user){
-		String sql = "SELECT user, message, date "
+		String sql = "SELECT src, dest, message, date "
 				+ "FROM messages "
-				+ "WHERE user = '"+user.getPseudo()+"'";
+				+ "WHERE src = '"+user.getPseudo()+"'";
 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
@@ -162,7 +164,8 @@ public class DatabaseConnection {
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getString("user") +  "\t" + 
+				System.out.println(rs.getString("src") +  "\t" + 
+						rs.getString("dest") + "\t" +
 						rs.getString("message") + "\t" +
 						rs.getString("date"));
 			}
@@ -173,7 +176,7 @@ public class DatabaseConnection {
 	}
 	
 	public static String selectIp(User user){
-		String sql = "SELECT pseudo, ipAddress"
+		String sql = "SELECT ipAddress "
 				+ "FROM users "
 				+ "WHERE pseudo = '"+user.getPseudo()+"'";
 		String ip = "";
@@ -182,12 +185,25 @@ public class DatabaseConnection {
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
-			ip = rs.getString("ip") ;			
+			ip = rs.getString("ipAddress") ;			
 		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
 		
 		return ip;
+	}
+	
+	public static void deleteUser(User user) {
+		String sql = "DELETE FROM users "
+				+ "WHERE pseudo = '"+user.getPseudo()+"'";
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			stmt.executeUpdate(sql); 	
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
 	}
 }

@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.net.Socket;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,7 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controller.BroadcastSender;
+import controller.MessageWaiter;
 import model.BroadcastType;
+import model.User;
 
 public class WelcomeFrame implements ActionListener, WindowListener {
 	JFrame firstpageFrame;
