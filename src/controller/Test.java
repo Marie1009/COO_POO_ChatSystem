@@ -29,9 +29,9 @@ public class Test {
 			e.printStackTrace();
 		}*/
 		//lance la fenêtre de login qui permet d'accéder aux conversations qaund le pseudo fournit est adéquat (unique et > 5 caractères
-		//WelcomeFrame login = new WelcomeFrame();
+		WelcomeFrame login = new WelcomeFrame();
 		//DatabaseConnection.insert(u1, m);
-		DatabaseConnection.selectAllMessages();
+		//DatabaseConnection.selectAllMessages();
 		//DatabaseConnection.select(u1);
 	}
 

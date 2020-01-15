@@ -38,6 +38,7 @@ public class MessageWaiter implements Runnable {
 
 			this.servSocket = new ServerSocket(CONVERSATION_PORT);
 			while(!isStopped) {
+			
 				this.link = this.servSocket.accept();
 				ObjectInputStream ois = new ObjectInputStream(link.getInputStream());
 				Message mes = (Message) ois.readObject();
@@ -47,7 +48,7 @@ public class MessageWaiter implements Runnable {
 				DatabaseConnection.insertMessage(mes);
 			}
 
-		}catch (Exception e) {e.printStackTrace();}
+		}catch (Exception e) {System.err.println("message waiter closed");}
 		//catch (InterruptedException ie) {this.servSocket.close();}
 	}
 

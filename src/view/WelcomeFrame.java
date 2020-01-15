@@ -74,8 +74,8 @@ public class WelcomeFrame implements ActionListener, WindowListener {
 		// TODO Auto-generated method stub
 		System.out.println("click");
 		String pseudo = pseudoField.getText();
-		if (pseudo.length()<5) {
-			JOptionPane.showMessageDialog(new JFrame(), "Pseudo must be at least 5 characters");
+		if (pseudo.length()<3) {
+			JOptionPane.showMessageDialog(new JFrame(), "Pseudo must be at least 3 characters");
 		} else {
 			BroadcastSender bs = new BroadcastSender(pseudo, BroadcastType.PSEUDO_UNIQUE);
 			if (bs.getBroadcastAnswer()) {

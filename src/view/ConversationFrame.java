@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -43,10 +44,11 @@ public class ConversationFrame implements ActionListener, WindowListener{
 		convPanel = new JPanel();
 		convPanel.setLayout(new BoxLayout(convPanel, BoxLayout.PAGE_AXIS));
 		conversationFrame.add(convPanel) ; 
-
+		
+		updateDisplay();
 		//Add the widgets.
 		addWidgets();
-
+		
 		//Display the window.
 		conversationFrame.pack();
 		conversationFrame.setLocationRelativeTo(null);
@@ -54,6 +56,13 @@ public class ConversationFrame implements ActionListener, WindowListener{
 
 	}
 
+	private void updateDisplay() {
+
+		ArrayList<String> history = DatabaseConnection.selectHistory(self, dest) ; 
+		for (String a : history) {
+			convAreaDisplay.append(a+"\n");
+		}
+	}
 	private void addWidgets() {
 		
 
@@ -91,6 +100,8 @@ public class ConversationFrame implements ActionListener, WindowListener{
 			
 			Message message = new Message(convArea.getText(), dest, self);
 			MessageSender ms = new MessageSender(message);
+			
+			updateDisplay();
 		}
 	}
 

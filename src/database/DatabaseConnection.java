@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.sql.Date;
 
 import model.Message;
@@ -153,26 +154,28 @@ public class DatabaseConnection {
 			System.out.println(e.getMessage());
 		}
 	}
-	public static void selectHistory(User user){
+	public static ArrayList<String> selectHistory(User src, User dest){
 		String sql = "SELECT src, dest, message, date "
 				+ "FROM messages "
-				+ "WHERE src = '"+user.getPseudo()+"'";
+				+ "WHERE (src = '"+src.getPseudo()+"' AND dest = '"+dest.getPseudo()+"')"
+						+ " OR (src = '"+dest.getPseudo()+"' AND dest = '"+src.getPseudo()+"')";
 
+		ArrayList<String> res = new ArrayList<String>() ; 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getString("src") +  "\t" + 
-						rs.getString("dest") + "\t" +
-						rs.getString("message") + "\t" +
-						rs.getString("date"));
+				res.add("From "+rs.getString("src") +  "\t" + 
+						"To "+rs.getString("dest") + "\t" +
+						": "+rs.getString("message") + "\t" +
+						"at "+rs.getString("date"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 
-		}
+		} return res; 
 	}
 	
 	public static String selectIp(User user){
