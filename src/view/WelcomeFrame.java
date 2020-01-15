@@ -1,6 +1,8 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -10,6 +12,7 @@ import java.awt.event.WindowListener;
 import java.net.Socket;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,27 +27,21 @@ import model.User;
 
 public class WelcomeFrame implements ActionListener, WindowListener {
 	JFrame firstpageFrame;
-	JPanel pagePanel;
 	JTextField pseudoField;
 	JLabel welcomeLabel;
 	JButton loginButton;
 
 	public WelcomeFrame() {
 		//Create and set up the window.
-		firstpageFrame = new JFrame("WelcomeFrame");
+		firstpageFrame = new JFrame("ChAtSysTem");
 		firstpageFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		firstpageFrame.setSize(new Dimension(120, 40));
+		firstpageFrame.setPreferredSize(new Dimension(300, 100));
 
-		//Create and set up the panel.
-		pagePanel = new JPanel(new GridLayout(3, 1));
 		//Add the widgets.
 		addWidgets();
 
-		//Set the default button.
-		firstpageFrame.getRootPane().setDefaultButton(loginButton);
-
 		//Add the panel to the window.
-		firstpageFrame.getContentPane().add(pagePanel, BorderLayout.CENTER);
+		firstpageFrame.getContentPane().setLayout(new BoxLayout(firstpageFrame.getContentPane(), BoxLayout.Y_AXIS));
 
 		//Display the window.
 		firstpageFrame.pack();
@@ -55,15 +52,24 @@ public class WelcomeFrame implements ActionListener, WindowListener {
 
 
 	private void addWidgets() {
-		pseudoField = new JTextField();
 		welcomeLabel = new JLabel("Enter your pseudo");
-		loginButton = new JButton("LOGIN");
-		pagePanel.add(welcomeLabel);
-		pagePanel.add(pseudoField);
-
-		pagePanel.add(loginButton);
-
+		welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		welcomeLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		
+		pseudoField = new JTextField();
+		pseudoField.setAlignmentX(Component.CENTER_ALIGNMENT);
+		pseudoField.setPreferredSize(new Dimension(100, 30));
+		pseudoField.setBorder(BorderFactory.createLineBorder(Color.RED));
+
+		loginButton = new JButton("LOGIN");
+		loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		loginButton.setForeground(Color.MAGENTA);
+		loginButton.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		
+		firstpageFrame.getContentPane().add(welcomeLabel);
+		firstpageFrame.getContentPane().add(pseudoField);
+		firstpageFrame.getContentPane().add(loginButton);
+		
 		loginButton.addActionListener(this);
 		firstpageFrame.addWindowListener(this);
 	}

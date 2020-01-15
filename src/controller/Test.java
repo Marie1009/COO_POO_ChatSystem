@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import database.DatabaseConnection;
 import model.Message;
 import model.User;
+import view.ChatFrame;
 import view.ConversationFrame;
 import view.WelcomeFrame;
 
@@ -30,6 +31,7 @@ public class Test {
 		}*/
 		//lance la fenêtre de login qui permet d'accéder aux conversations qaund le pseudo fournit est adéquat (unique et > 5 caractères
 		WelcomeFrame login = new WelcomeFrame();
+		//ChatFrame cf = new ChatFrame("pseudo") ; 
 		//DatabaseConnection.insert(u1, m);
 		//DatabaseConnection.selectAllMessages();
 		//DatabaseConnection.select(u1);

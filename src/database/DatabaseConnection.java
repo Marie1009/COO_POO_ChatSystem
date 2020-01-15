@@ -167,10 +167,10 @@ public class DatabaseConnection {
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
 			while (rs.next()) {
-				res.add("From "+rs.getString("src") +  "\t" + 
-						"To "+rs.getString("dest") + "\t" +
-						": "+rs.getString("message") + "\t" +
-						"at "+rs.getString("date"));
+				res.add(rs.getString("src") +  "\t" + 
+						rs.getString("dest") + "\t" +
+						rs.getString("message") + "\t" +
+						rs.getString("date"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

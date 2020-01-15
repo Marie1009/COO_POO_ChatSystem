@@ -51,7 +51,9 @@ public class BroadcastListener implements Runnable{
 			try {
 				this.ds.receive(inPacket);					
 				System.out.println("received");
-			} catch (IOException e) {System.err.println("receive() failed");}
+			} catch (IOException e) { 
+				if (isStopped) System.err.println("ds closed");
+				else e.printStackTrace();}
 
 			this.clientAddress= inPacket.getAddress();
 

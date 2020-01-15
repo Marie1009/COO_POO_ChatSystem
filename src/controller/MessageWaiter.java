@@ -27,8 +27,9 @@ public class MessageWaiter implements Runnable {
 	public void stop() {
 		this.isStopped = true ; 
 		try {
+			if (this.link!=null)
+				this.link.close();
 			this.servSocket.close();
-			this.link.close();
 		} catch (Exception e) {e.printStackTrace();}
 	}
 
@@ -48,7 +49,9 @@ public class MessageWaiter implements Runnable {
 				DatabaseConnection.insertMessage(mes);
 			}
 
-		}catch (Exception e) {System.err.println("message waiter closed");}
+		}catch (Exception e) {
+			if (isStopped) System.err.println("message waiter closed");
+			else e.printStackTrace();}
 		//catch (InterruptedException ie) {this.servSocket.close();}
 	}
 
