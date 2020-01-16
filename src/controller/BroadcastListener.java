@@ -90,10 +90,25 @@ public class BroadcastListener implements Runnable{
 				if (!localuser.equals(pseudo)) {
 					System.out.println("type 1 = new connection");
 					User newUser = new User(pseudo,this.clientAddress);
-					this.listOfConnected.add(pseudo);
-					//add in user list
-					DatabaseConnection.insertUser(newUser);
-					sendConnected(LISTENING_PORT);
+					String previous = DatabaseConnection.selectUser(this.clientAddress); 
+					if (previous.equals("")) {
+						//cas où l'utilisateur est nouveau, 
+						//personne ne s'est jamais connecté à cette adresse ip
+						this.listOfConnected.add(pseudo);
+						//add in user list
+						DatabaseConnection.insertUser(newUser);
+						sendConnected(LISTENING_PORT);
+					} else if (!previous.equals(pseudo)) {
+						//cas où l'adresse ip est déjà dans la db mais avec un pseudo différent
+						//il y a eu un chgmt de pseudo
+						this.listOfConnected.remove(previous); 
+						this.listOfConnected.add(pseudo); 
+						DatabaseConnection.changePseudo(newUser, previous) ; 
+					} else if (previous.equals(pseudo)) {
+						//cas où l'adresse ip est déjà dans la db avec le même pseudo 
+						this.listOfConnected.add(pseudo);
+						sendConnected(LISTENING_PORT);
+					}
 				}
 
 			} else if (type.equals("2")) {

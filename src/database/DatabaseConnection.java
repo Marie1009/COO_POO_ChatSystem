@@ -75,13 +75,13 @@ public class DatabaseConnection {
 				+ "pseudo TEXT NOT NULL,"
 				+ "ipAddress TEXT);" ;
 		
-		String query = "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pseudo ON users(pseudo);";
+		String sql2 = "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pseudo ON users(pseudo);";
 
 		try (Connection conn = connect();
 				Statement stmt = conn.createStatement()) {
 			// create a new table
 			stmt.execute(sql);
-			stmt.execute(query);
+			stmt.execute(sql2);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -204,6 +204,49 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement())
 		{	
 			stmt.executeUpdate(sql); 	
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+	}
+
+	/** Selects a user with the given ip address in the database and returns its pseudo
+	 * 
+	 * @param ipAddress
+	 * @return pseudo
+	 */
+	public static String selectUser(InetAddress ipAddress) {
+		String sql = "SELECT pseudo "
+				+ "FROM users "
+				+ "WHERE ipAddress = '"+ipAddress.toString()+"'";
+		String pseudo= "";
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			ResultSet rs    = stmt.executeQuery(sql) ; 
+			// loop through the result set
+			pseudo = rs.getString("pseudo") ;			
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+		
+		return pseudo;
+	}
+
+	public static void changePseudo(User newUser, String oldPseudo) {
+		String sql = "UPDATE users " + 
+				"SET pseudo = '"+newUser.getPseudo()+"' " + 
+				"WHERE ipAddress = '"+newUser.getIp().toString()+"';" ; 
+		
+		String sql2 = "UPDATE messages "
+				+ "SET src = REPLACE(src,'"+oldPseudo+"','"+newUser.getPseudo()+"'),"
+						+ "dest = REPLACE(dest,'"+oldPseudo+"','"+newUser.getPseudo()+"'); "; 
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			stmt.executeUpdate(sql); 	
+			stmt.executeUpdate(sql2); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 

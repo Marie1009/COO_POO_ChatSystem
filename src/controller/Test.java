@@ -23,9 +23,11 @@ public class Test {
 
 		//lance un faux utilisateur dont le pseudo est wyleno qui permet de tester les requêtes pseudo unique et connected users
 		//BroadcastListener fakeuser = new BroadcastListener(u1) ;
-		
+
 		try {
-			ConversationFrame conv = new ConversationFrame(new User("ggg",InetAddress.getLocalHost()), new User ("lol",InetAddress.getByName("10.1.5.51")));
+			User u = new User("hhh",InetAddress.getLocalHost());
+			DatabaseConnection.changePseudo(u, "ggg");
+			DatabaseConnection.selectAllMessages();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -36,7 +38,7 @@ public class Test {
 		//WelcomeFrame login = new WelcomeFrame();
 		//ChatFrame cf = new ChatFrame("pseudo") ; 
 		//DatabaseConnection.insert(u1, m);
-		//DatabaseConnection.selectAllMessages();
+	
 		//DatabaseConnection.select(u1);
 	}
 

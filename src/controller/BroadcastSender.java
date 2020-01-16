@@ -139,7 +139,7 @@ public class BroadcastSender implements Runnable {
 
 	private void sendBroadcast(String message) {
 		try {
-			DatagramPacket outPacket= new DatagramPacket(message.getBytes(), message.length(),InetAddress.getByName("10.1.255.255"), BroadcastListener.LISTENING_PORT);
+			DatagramPacket outPacket= new DatagramPacket(message.getBytes(), message.length(),InetAddress.getByName("255.255.255.255"), BroadcastListener.LISTENING_PORT);
 			ds.send(outPacket);
 			byte[] buffer = new byte[256]; 
 			DatagramPacket inPacket= new DatagramPacket(buffer, buffer.length);

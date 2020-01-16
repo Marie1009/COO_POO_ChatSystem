@@ -130,7 +130,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 	}
 	private void addWidgets() {
 		enterMsg = new JLabel("Enter your message : ") ;
-		enterMsg.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+		enterMsg.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, Color.ORANGE, Color.orange));
 		quitButton = new JButton("Quit chat") ; 
 		quitButton.addActionListener(this);
 
@@ -144,7 +144,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 		convPaneDisplay.setPreferredSize(new Dimension(400,300));
 
 		convArea = new JTextArea();
-		convArea.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, Color.BLUE, Color.ORANGE));
+		convArea.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, Color.CYAN, Color.CYAN));
 		convPane = new JScrollPane(convArea);
 		convPane.setPreferredSize(new Dimension(150,50));
 		//messageToSendField = new JTextField("default"); 
@@ -180,9 +180,8 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 			}
 			updateDisplay();
 		} else if(event.equals("Quit chat")) {
-			timer.cancel();
-			timer.purge();
 			conversationFrame.dispose();
+			this.windowClosing(null);
 		}
 	}
 
@@ -227,36 +226,5 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 	public void windowDeactivated(WindowEvent e) {
 		// TODO Auto-generated method stub
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
