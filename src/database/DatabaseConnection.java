@@ -208,9 +208,9 @@ public class DatabaseConnection {
 		return ip;
 	}
 	
-	public static void deleteUser(User user) {
+	public static void deleteUser(String pseudo) {
 		String sql = "DELETE FROM users "
-				+ "WHERE pseudo = '"+user.getPseudo()+"'";
+				+ "WHERE pseudo = '"+pseudo+"'";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	
@@ -276,7 +276,7 @@ public class DatabaseConnection {
 		}
 	}
 	
-	public static void changeIP(User newUser, String oldIP) {
+	/*public static void changeIP(User newUser) {
 		String sql = "UPDATE users " + 
 				"SET ipAddress = '"+newUser.getIp().getHostAddress()+"' " + 
 				"WHERE pseudo = '"+newUser.getPseudo()+"';" ; 
@@ -288,7 +288,7 @@ public class DatabaseConnection {
 			e.printStackTrace();
 
 		}
-	}
+	}*/
 
 	public static String selectSelf() {
 		// TODO Auto-generated method stub
