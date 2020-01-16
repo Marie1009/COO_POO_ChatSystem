@@ -24,21 +24,31 @@ public class Test {
 		//lance un faux utilisateur dont le pseudo est wyleno qui permet de tester les requêtes pseudo unique et connected users
 		//BroadcastListener fakeuser = new BroadcastListener(u1) ;
 
-		try {
+		/*try {
 			User u = new User("hhh",InetAddress.getLocalHost());
 			DatabaseConnection.changePseudo(u, "ggg");
 			DatabaseConnection.selectAllMessages();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
+		DatabaseConnection.selectAllUsers();
+		String ip = DatabaseConnection.selectIp("zaza"); 
+		System.out.println(ip);
 
 		
 		//lance la fenêtre de login qui permet d'accéder aux conversations qaund le pseudo fournit est adéquat (unique et > 5 caractères
-		//WelcomeFrame login = new WelcomeFrame();
+		WelcomeFrame login = new WelcomeFrame();
 		//ChatFrame cf = new ChatFrame("pseudo") ; 
 		//DatabaseConnection.insert(u1, m);
-	
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		DatabaseConnection.selectAllUsers();
 		//DatabaseConnection.select(u1);
 	}
 

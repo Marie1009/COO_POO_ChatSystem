@@ -103,8 +103,8 @@ public class DatabaseConnection {
 		}
 	}
 	public static void insertUser(User u ) {
-		String sql = "REPLACE INTO users(pseudo, ipAddress) VALUES(?,?)";
-		
+		String sql = "INSERT OR REPLACE INTO users(pseudo, ipAddress) VALUES(?,?)";
+		System.out.println("j'insere dans la db");
 		try (Connection conn = connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)) 
 		{
@@ -178,17 +178,18 @@ public class DatabaseConnection {
 		} return res; 
 	}
 	
-	public static String selectIp(User user){
+	public static String selectIp(String pseudo){
 		String sql = "SELECT ipAddress "
 				+ "FROM users "
-				+ "WHERE pseudo = '"+user.getPseudo()+"'";
+				+ "WHERE pseudo = '"+pseudo+"'";
 		String ip = "";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
-			ip = rs.getString("ipAddress") ;			
+			if (rs.next())
+				ip = rs.getString("ipAddress") ;			
 		} catch (SQLException e) {
 			e.printStackTrace();
 
@@ -225,7 +226,8 @@ public class DatabaseConnection {
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
-			pseudo = rs.getString("pseudo") ;			
+			if (rs.next())
+				pseudo = rs.getString("pseudo") ;			
 		} catch (SQLException e) {
 			e.printStackTrace();
 
@@ -247,6 +249,20 @@ public class DatabaseConnection {
 		{	
 			stmt.executeUpdate(sql); 	
 			stmt.executeUpdate(sql2); 
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+	}
+	
+	public static void changeIP(User newUser, String oldIP) {
+		String sql = "UPDATE users " + 
+				"SET ipAddress = '"+newUser.getIp().toString()+"' " + 
+				"WHERE pseudo = '"+newUser.getPseudo()+"';" ; 
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			stmt.executeUpdate(sql); 	
 		} catch (SQLException e) {
 			e.printStackTrace();
 

@@ -117,7 +117,7 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 	public void run() {
 		// TODO Auto-generated method stub
 
-		System.out.println("pudate users");
+		//System.out.println("pudate users");
 		ArrayList<String> users = bl.getListOfConnected();
 		if (users.size() != this.numUsers) {
 			this.numUsers = users.size(); 
@@ -153,7 +153,7 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 					String dest = (String)(this.usersList.getSelectedValue());
 					//on met une ip au pif pour commencer et on la set juste après
 					User distant = new User(dest,InetAddress.getByName("localhost"));
-					distant.setIp(InetAddress.getByName(DatabaseConnection.selectIp(distant)));
+					distant.setIp(InetAddress.getByName(DatabaseConnection.selectIp(distant.getPseudo())));
 					//DatabaseConnection.selectAllUsers();
 					User self = new User(this.pseudo, InetAddress.getByName("localhost")) ; 
 					ConversationFrame cf = new ConversationFrame(distant, self); 

@@ -102,40 +102,6 @@ public class BroadcastSender implements Runnable {
 		return res ;
 	}
 
-/*	public ArrayList<String> getConnectedUsersAnswer() {
-		ArrayList<String> users = new ArrayList<String>() ;
-
-		while (true) {
-			try {  // set the timeout in millisecounds
-				ds.setSoTimeout(1000); 
-				try {
-
-					byte[] buf = new byte[256] ; 
-					DatagramPacket inPacket = new DatagramPacket(buf, buf.length); 
-					ds.receive(inPacket);
-
-					System.out.println(inPacket.getAddress());
-
-					//System.out.println(ip);
-					if (!inPacket.getAddress().equals(InetAddress.getLocalHost())) {
-						String user = new String(inPacket.getData(), 0, inPacket.getLength()) ;
-						System.out.println(user+" is connected");
-						users.add(user) ; 
-						User newUser = new User(user,inPacket.getAddress());
-						DatabaseConnection.insertUser(newUser);
-					}
-				}catch(SocketTimeoutException e1) {
-					System.out.println("timeout reached");
-					ds.close(); 
-					break ;
-				}
-			}catch(IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return users ;
-	}
-*/
 
 	private void sendBroadcast(String message) {
 		try {

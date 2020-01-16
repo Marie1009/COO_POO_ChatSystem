@@ -57,7 +57,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 		this.numMsg = 0 ;
 		//Create and set up the window.
 		conversationFrame = new JFrame("Conversation opened with "+this.dest.getPseudo());
-		conversationFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		conversationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//	conversationFrame.setPreferredSize(new Dimension(450, 110));
 		convPanel = new JPanel();
 		convPanel.setLayout(new BoxLayout(convPanel, BoxLayout.PAGE_AXIS));
@@ -86,7 +86,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub*
-		System.out.println("jupdate la converaea");
+		//System.out.println("jupdate la converaea");
 		updateDisplay();
 	}
 
