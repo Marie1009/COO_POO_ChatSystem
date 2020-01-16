@@ -91,32 +91,8 @@ public class BroadcastListener implements Runnable{
 					System.out.println("type 1 = new connection");
 					
 					User newUser = new User(pseudo,this.clientAddress);
-					
-					String ipAlreadyInDb= DatabaseConnection.selectIp(pseudo); 
-					String previous = DatabaseConnection.selectUser(this.clientAddress) ;
-					
-					System.out.println("ip "+ipAlreadyInDb);
-					System.out.println("pseudo "+previous);
-					
-					if (previous.equals("") && !ipAlreadyInDb.equals("")) {
-						System.out.println("ip inconnu et pseudo connu");
-						DatabaseConnection.changeIP(newUser, ipAlreadyInDb);
-						
-					} else if (!previous.equals("") && ipAlreadyInDb.equals("")) {
-						System.out.println("ip connu et pseudo inconnu");
-						DatabaseConnection.changePseudo(newUser, previous);
-						
-					} else if (previous.equals("") && ipAlreadyInDb.equals("")) {
-						System.out.println("les deux inconnus");
-						DatabaseConnection.insertUser(newUser);
-						
-					} else if (!previous.equals("") && !ipAlreadyInDb.equals("")) {
-						System.out.println("les deux connus");
-						if (!previous.equals(pseudo)) {
-							System.out.println("chgt de pseudo");
-							DatabaseConnection.changePseudo(newUser, previous);
-						} 
-					}
+					handlePseudoChanging(newUser);
+				
 					this.listOfConnected.add(pseudo);
 					sendConnected(LISTENING_PORT);
 				}
@@ -125,6 +101,7 @@ public class BroadcastListener implements Runnable{
 				System.out.println("type 2 = user leaving");
 				//remove from user list
 				this.listOfConnected.remove(pseudo);
+				
 
 			} else if (type.equals("3")) {
 				if (!localuser.equals(pseudo)) {
@@ -132,10 +109,40 @@ public class BroadcastListener implements Runnable{
 					User newUser = new User(pseudo,this.clientAddress);
 					this.listOfConnected.add(pseudo);
 					//add in user list
-					DatabaseConnection.insertUser(newUser);
+					handlePseudoChanging(newUser);
 				}
 			}
 		}		
+	}
+	
+	private void handlePseudoChanging(User newUser) {
+		String pseudo = newUser.getPseudo() ; 
+		String ipAlreadyInDb= DatabaseConnection.selectIp(pseudo); 
+		String previous = DatabaseConnection.selectUser(this.clientAddress) ;
+		
+		System.out.println("ip "+ipAlreadyInDb);
+		System.out.println("pseudo "+previous);
+		
+		if (previous.equals("") && !ipAlreadyInDb.equals("")) {
+			System.out.println("ip inconnu et pseudo connu");
+			DatabaseConnection.changeIP(newUser, ipAlreadyInDb);
+			
+		} else if (!previous.equals("") && ipAlreadyInDb.equals("")) {
+			System.out.println("ip connu et pseudo inconnu");
+			DatabaseConnection.changePseudoInUsers(newUser, previous);
+			DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
+		} else if (previous.equals("") && ipAlreadyInDb.equals("")) {
+			System.out.println("les deux inconnus");
+			DatabaseConnection.insertUser(newUser);
+			
+		} else if (!previous.equals("") && !ipAlreadyInDb.equals("")) {
+			System.out.println("les deux connus");
+			if (!previous.equals(pseudo)) {
+				System.out.println("chgt de pseudo");
+				DatabaseConnection.changePseudoInUsers(newUser, previous);
+				DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
+			} 
+		}
 	}
 
 	private void sendConnected(int port) {

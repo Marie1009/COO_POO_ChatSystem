@@ -1,8 +1,6 @@
 package database;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -11,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.sql.Date;
 
 import model.Message;
 import model.User;
@@ -34,7 +31,8 @@ public class DatabaseConnection {
 			}
 
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
+			
 		}
 	}
 
@@ -87,7 +85,19 @@ public class DatabaseConnection {
 		}
 	}
 
+	public static void createNewTableSelf() {
+		String sql = "CREATE TABLE IF NOT EXISTS self ( "
+				+ "pseudo TEXT) ;";
 
+		try (Connection conn = connect();
+				Statement stmt = conn.createStatement()) {
+			// create a new table
+			stmt.execute(sql);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	public static void insertMessage(Message m) {
 		String sql = "INSERT INTO messages(src, dest, message) VALUES(?,?,?)";
 
@@ -220,7 +230,7 @@ public class DatabaseConnection {
 		System.out.println("select user"+ipAddress.getHostAddress());
 		String sql = "SELECT pseudo "
 				+ "FROM users "
-				+ "WHERE ipAddress = '10.1.5.44'";
+				+ "WHERE ipAddress = '"+ipAddress.getHostAddress()+"'";
 		String pseudo= "";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
@@ -237,18 +247,28 @@ public class DatabaseConnection {
 		return pseudo;
 	}
 
-	public static void changePseudo(User newUser, String oldPseudo) {
+	public static void changePseudoInUsers(User newUser, String oldPseudo) {
 		String sql = "UPDATE users " + 
 				"SET pseudo = '"+newUser.getPseudo()+"' " + 
 				"WHERE ipAddress = '"+newUser.getIp().getHostAddress()+"';" ; 
 		
-		String sql2 = "UPDATE messages "
-				+ "SET src = REPLACE(src,'"+oldPseudo+"','"+newUser.getPseudo()+"'),"
-						+ "dest = REPLACE(dest,'"+oldPseudo+"','"+newUser.getPseudo()+"'); "; 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	
-			stmt.executeUpdate(sql); 	
+			stmt.executeUpdate(sql); 
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+	}
+	
+	public static void changePseudoInMessages(String newPseudo, String oldPseudo) {
+		String sql2 = "UPDATE messages "
+				+ "SET src = REPLACE(src,'"+oldPseudo+"','"+newPseudo+"'),"
+						+ "dest = REPLACE(dest,'"+oldPseudo+"','"+newPseudo+"'); "; 
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{		
 			stmt.executeUpdate(sql2); 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -267,6 +287,44 @@ public class DatabaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 
+		}
+	}
+
+	public static String selectSelf() {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM self";
+		String self = "";
+		try (Connection conn = connect();
+				Statement stmt  = conn.createStatement())
+		{	
+			ResultSet rs    = stmt.executeQuery(sql) ; 
+			// loop through the result set
+			if (rs.next())
+				self = rs.getString("pseudo") ;
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+		
+		return self ;
+	}
+
+	public static void insertSelf(String pseudo) {
+		
+	}
+	
+	public static void updateSelf(String pseudo) {
+		// TODO Auto-generated method stub
+		String sql = "DELETE FROM self ;";
+		String sql2 = "INSERT INTO self (pseudo) "
+				+ "VALUES ('"+pseudo+"') ; " ; 
+		try (Connection conn = connect();
+				Statement stmt = conn.createStatement()) 
+		{
+			stmt.executeUpdate(sql);
+			stmt.executeUpdate(sql2) ; 
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 }

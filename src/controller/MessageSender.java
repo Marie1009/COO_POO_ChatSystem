@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import database.DatabaseConnection;
 import model.Message;
 
@@ -29,7 +32,7 @@ public class MessageSender implements Runnable {
 			DatabaseConnection.insertMessage(message);
 			oos.close();
 			s.close();
-		}catch (IOException e) {e.printStackTrace();}
+		}catch (IOException e) {JOptionPane.showMessageDialog(new JFrame(), "Your friend has disconnected :(");}
 	}
 
 }

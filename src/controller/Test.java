@@ -20,7 +20,7 @@ public class Test {
 
 		DatabaseConnection.createNewTableUsers();
 		DatabaseConnection.createNewTableMessages();
-
+		DatabaseConnection.createNewTableSelf();
 		//lance un faux utilisateur dont le pseudo est wyleno qui permet de tester les requêtes pseudo unique et connected users
 		//BroadcastListener fakeuser = new BroadcastListener(u1) ;
 

@@ -107,7 +107,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
 				    try {
-						doc.insertString(doc.getLength(), n[2]+" received at : "+n[3]+"\n", aset);
+						doc.insertString(doc.getLength(), n[2]+" sent at : "+n[3]+"\n", aset);
 					} catch (BadLocationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
