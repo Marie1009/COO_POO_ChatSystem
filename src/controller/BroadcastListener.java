@@ -121,15 +121,21 @@ public class BroadcastListener implements Runnable{
 		String previous = DatabaseConnection.selectUser(this.clientAddress) ;
 		System.out.println("pseudo "+previous);
 		String ip = DatabaseConnection.selectIp(pseudo) ; 
+		System.out.println("ip "+ip);
 
 
 		if (!ip.equals("")) {
 			DatabaseConnection.deleteUser(pseudo);
+		}
+		if (previous.equals("")) {
+			DatabaseConnection.insertUser(newUser);
+		} else {
 			if (!previous.equals(pseudo)) {
 				DatabaseConnection.changePseudoInUsers(newUser, previous);
 				DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
-			}
+			} 
 		}
+
 		/*if (previous.equals("") && !ipAlreadyInDb.equals("")) {
 			System.out.println("ip inconnu et pseudo connu");
 			DatabaseConnection.deleteUser(pseudo);
