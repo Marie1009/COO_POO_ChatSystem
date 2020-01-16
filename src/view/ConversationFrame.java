@@ -103,7 +103,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 			for (String a : history) {
 				String[] n = a.split("\t") ; 
 				if (n[0].equals(self.getPseudo())) {
-					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.GRAY);
+					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLUE);
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
 				    try {
@@ -114,7 +114,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 					}
 				}
 				else if (n[0].equals(dest.getPseudo())) {					
-					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLUE);
+					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.GRAY);
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
 					try {

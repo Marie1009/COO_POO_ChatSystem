@@ -89,10 +89,10 @@ public class BroadcastListener implements Runnable{
 			} else if (type.equals("1"))  {
 				if (!localuser.equals(pseudo)) {
 					System.out.println("type 1 = new connection");
-					
+
 					User newUser = new User(pseudo,this.clientAddress);
 					handlePseudoChanging(newUser);
-				
+
 					this.listOfConnected.add(pseudo);
 					sendConnected(LISTENING_PORT);
 				}
@@ -101,7 +101,7 @@ public class BroadcastListener implements Runnable{
 				System.out.println("type 2 = user leaving");
 				//remove from user list
 				this.listOfConnected.remove(pseudo);
-				
+
 
 			} else if (type.equals("3")) {
 				if (!localuser.equals(pseudo)) {
@@ -114,29 +114,36 @@ public class BroadcastListener implements Runnable{
 			}
 		}		
 	}
-	
+
 	private void handlePseudoChanging(User newUser) {
 		String pseudo = newUser.getPseudo() ; 
-		String ipAlreadyInDb= DatabaseConnection.selectIp(pseudo); 
+
 		String previous = DatabaseConnection.selectUser(this.clientAddress) ;
-		
-		System.out.println("ip "+ipAlreadyInDb);
 		System.out.println("pseudo "+previous);
-		
-		if (previous.equals("") && !ipAlreadyInDb.equals("")) {
+		String ip = DatabaseConnection.selectIp(pseudo) ; 
+
+
+		if (!ip.equals("")) {
+			DatabaseConnection.deleteUser(pseudo);
+			if (!previous.equals(pseudo)) {
+				DatabaseConnection.changePseudoInUsers(newUser, previous);
+				DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
+			}
+		}
+		/*if (previous.equals("") && !ipAlreadyInDb.equals("")) {
 			System.out.println("ip inconnu et pseudo connu");
 			DatabaseConnection.deleteUser(pseudo);
 			DatabaseConnection.insertUser(newUser);
-			
+
 		} else if (!previous.equals("") && ipAlreadyInDb.equals("")) {
 			System.out.println("ip connu et pseudo inconnu");
 			DatabaseConnection.changePseudoInUsers(newUser, previous);
 			DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
-			
+
 		} else if (previous.equals("") && ipAlreadyInDb.equals("")) {
 			System.out.println("les deux inconnus");
 			DatabaseConnection.insertUser(newUser);
-			
+
 		} else if (!previous.equals("") && !ipAlreadyInDb.equals("")) {
 			System.out.println("les deux connus");
 			if (!previous.equals(pseudo)) {
@@ -144,7 +151,7 @@ public class BroadcastListener implements Runnable{
 				DatabaseConnection.changePseudoInUsers(newUser, previous);
 				DatabaseConnection.changePseudoInMessages(pseudo, previous);
 			}
-		}
+		}*/
 	}
 
 	private void sendConnected(int port) {
