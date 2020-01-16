@@ -95,6 +95,7 @@ public class BroadcastListener implements Runnable{
 					String previous = DatabaseConnection.selectUser(this.clientAddress) ;
 					System.out.println("ip "+ipAlreadyInDb);
 					System.out.println("pseudo "+previous);
+					
 					if (previous.equals(null) && !ipAlreadyInDb.equals(null)) {
 						DatabaseConnection.changeIP(newUser, ipAlreadyInDb);
 					} else if (!previous.equals(null) && ipAlreadyInDb.equals(null)) {
