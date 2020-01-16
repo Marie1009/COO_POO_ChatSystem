@@ -181,7 +181,7 @@ public class DatabaseConnection {
 	public static String selectIp(String pseudo){
 		String sql = "SELECT ipAddress "
 				+ "FROM users "
-				+ "WHERE pseudo = '"+pseudo+"'";
+				+ "WHERE (pseudo = '"+pseudo+"')";
 		String ip = "";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
@@ -189,7 +189,7 @@ public class DatabaseConnection {
 			ResultSet rs    = stmt.executeQuery(sql) ; 
 			// loop through the result set
 			if (rs.next())
-				ip = rs.getString("ipAddress") ;			
+				ip = rs.getString("ipAddress") ;
 		} catch (SQLException e) {
 			e.printStackTrace();
 
@@ -217,9 +217,10 @@ public class DatabaseConnection {
 	 * @return pseudo
 	 */
 	public static String selectUser(InetAddress ipAddress) {
+		System.out.println("select user"+ipAddress.getHostAddress());
 		String sql = "SELECT pseudo "
 				+ "FROM users "
-				+ "WHERE ipAddress = '"+ipAddress.toString()+"'";
+				+ "WHERE ipAddress = '10.1.5.44'";
 		String pseudo= "";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
@@ -239,7 +240,7 @@ public class DatabaseConnection {
 	public static void changePseudo(User newUser, String oldPseudo) {
 		String sql = "UPDATE users " + 
 				"SET pseudo = '"+newUser.getPseudo()+"' " + 
-				"WHERE ipAddress = '"+newUser.getIp().toString()+"';" ; 
+				"WHERE ipAddress = '"+newUser.getIp().getHostAddress()+"';" ; 
 		
 		String sql2 = "UPDATE messages "
 				+ "SET src = REPLACE(src,'"+oldPseudo+"','"+newUser.getPseudo()+"'),"
@@ -257,7 +258,7 @@ public class DatabaseConnection {
 	
 	public static void changeIP(User newUser, String oldIP) {
 		String sql = "UPDATE users " + 
-				"SET ipAddress = '"+newUser.getIp().toString()+"' " + 
+				"SET ipAddress = '"+newUser.getIp().getHostAddress()+"' " + 
 				"WHERE pseudo = '"+newUser.getPseudo()+"';" ; 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())

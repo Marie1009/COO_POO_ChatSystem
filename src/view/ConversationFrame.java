@@ -98,7 +98,8 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 
 		if (history.size() > this.numMsg) {
 			this.numMsg = history.size() ; 
-			//convAreaDisplay.setText("");
+			convDisplay.setText("");
+			
 			for (String a : history) {
 				String[] n = a.split("\t") ; 
 				if (n[0].equals(self.getPseudo())) {
