@@ -102,7 +102,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 			
 			for (String a : history) {
 				String[] n = a.split("\t") ; 
-				if (n[0].equals(self.getPseudo())) {
+				if (!n[0].equals(dest.getIp().getHostAddress())) {
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLUE);
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
@@ -113,7 +113,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 						e.printStackTrace();
 					}
 				}
-				else if (n[0].equals(dest.getPseudo())) {					
+				else if (n[0].equals(dest.getIp().getHostAddress())) {					
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.GRAY);
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();

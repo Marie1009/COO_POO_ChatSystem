@@ -104,8 +104,8 @@ public class DatabaseConnection {
 		try (Connection conn = connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)) 
 		{
-			pstmt.setString(1, m.getSrc().getPseudo());
-			pstmt.setString(2, m.getDest().getPseudo());
+			pstmt.setString(1, m.getSrc().getIp().getHostAddress());
+			pstmt.setString(2, m.getDest().getIp().getHostAddress());
 			pstmt.setString(3, m.getContent());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -167,8 +167,8 @@ public class DatabaseConnection {
 	public static ArrayList<String> selectHistory(User src, User dest){
 		String sql = "SELECT src, dest, message, date "
 				+ "FROM messages "
-				+ "WHERE (src = '"+src.getPseudo()+"' AND dest = '"+dest.getPseudo()+"')"
-						+ " OR (src = '"+dest.getPseudo()+"' AND dest = '"+src.getPseudo()+"')";
+				+ "WHERE (src = '"+src.getIp().getHostAddress()+"' AND dest = '"+dest.getIp().getHostAddress()+"')"
+						+ " OR (src = '"+dest.getIp().getHostAddress()+"' AND dest = '"+src.getIp().getHostAddress()+"')";
 
 		ArrayList<String> res = new ArrayList<String>() ; 
 		try (Connection conn = connect();
@@ -262,7 +262,7 @@ public class DatabaseConnection {
 		}
 	}
 	
-	public static void changePseudoInMessages(String newPseudo, String oldPseudo) {
+	/*public static void changePseudoInMessages(String newPseudo, String oldPseudo) {
 		String sql2 = "UPDATE messages "
 				+ "SET src = REPLACE(src,'"+oldPseudo+"','"+newPseudo+"'),"
 						+ "dest = REPLACE(dest,'"+oldPseudo+"','"+newPseudo+"'); "; 

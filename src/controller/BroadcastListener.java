@@ -132,32 +132,8 @@ public class BroadcastListener implements Runnable{
 		} else {
 			if (!previous.equals(pseudo)) {
 				DatabaseConnection.changePseudoInUsers(newUser, previous);
-				DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
 			} 
 		}
-
-		/*if (previous.equals("") && !ipAlreadyInDb.equals("")) {
-			System.out.println("ip inconnu et pseudo connu");
-			DatabaseConnection.deleteUser(pseudo);
-			DatabaseConnection.insertUser(newUser);
-
-		} else if (!previous.equals("") && ipAlreadyInDb.equals("")) {
-			System.out.println("ip connu et pseudo inconnu");
-			DatabaseConnection.changePseudoInUsers(newUser, previous);
-			DatabaseConnection.changePseudoInMessages(newUser.getPseudo(),previous);
-
-		} else if (previous.equals("") && ipAlreadyInDb.equals("")) {
-			System.out.println("les deux inconnus");
-			DatabaseConnection.insertUser(newUser);
-
-		} else if (!previous.equals("") && !ipAlreadyInDb.equals("")) {
-			System.out.println("les deux connus");
-			if (!previous.equals(pseudo)) {
-				DatabaseConnection.deleteUser(previous);
-				DatabaseConnection.changePseudoInUsers(newUser, previous);
-				DatabaseConnection.changePseudoInMessages(pseudo, previous);
-			}
-		}*/
 	}
 
 	private void sendConnected(int port) {

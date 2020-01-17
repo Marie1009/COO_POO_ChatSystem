@@ -20,6 +20,8 @@ public class Test2 {
 		DatabaseConnection.createNewTableUsers();
 		DatabaseConnection.createNewTableMessages();
 
+		DatabaseConnection.selectAllMessages();
+		DatabaseConnection.selectAllUsers();
 		WelcomeFrame wf = new WelcomeFrame() ; 
 		//lance un faux utilisateur dont le pseudo est wylenolf qui permet de tester les requêtes pseudo unique et connected users
 		//BroadcastListener fu = new BroadcastListener(lolz) ;// attend

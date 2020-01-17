@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 
 import controller.BroadcastListener;
 import controller.BroadcastSender;
+import controller.MessageSender;
 import controller.MessageWaiter;
 import database.DatabaseConnection;
 import model.BroadcastType;
@@ -52,13 +53,13 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 		bl = new BroadcastListener(this.pseudo)	; 
 		BroadcastSender bs = new BroadcastSender(this.pseudo, BroadcastType.NEW_CONNECTION) ; 
 
-		String previousSelf = DatabaseConnection.selectSelf() ;
+		/*String previousSelf = DatabaseConnection.selectSelf() ;
 		System.out.println("previous self :"+previousSelf);
 		DatabaseConnection.updateSelf(this.pseudo) ;
 		if (!previousSelf.equals(this.pseudo)) {
 			System.out.println("not equal");
 			DatabaseConnection.changePseudoInMessages(this.pseudo, previousSelf);
-		}
+		}*/
 		
 		
 		this.numUsers = 0; 
@@ -164,7 +165,7 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 					User distant = new User(dest,InetAddress.getByName("localhost"));
 					distant.setIp(InetAddress.getByName(DatabaseConnection.selectIp(distant.getPseudo())));
 					//DatabaseConnection.selectAllUsers();
-					User self = new User(this.pseudo, InetAddress.getByName("localhost")) ; 
+					User self = new User(this.pseudo, MessageSender.getLocalIp()) ; 
 					ConversationFrame cf = new ConversationFrame(distant, self); 
 				}catch(Exception ex) {ex.printStackTrace();}
 			}

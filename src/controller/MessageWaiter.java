@@ -1,11 +1,13 @@
 package controller;
 
 import java.io.ObjectInputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import database.DatabaseConnection;
 import model.Message;
+import model.User;
 
 public class MessageWaiter implements Runnable {
 	private ServerSocket servSocket; 

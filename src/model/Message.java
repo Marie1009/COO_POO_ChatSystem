@@ -10,6 +10,7 @@ public class Message implements Serializable { //conseil de ruben et matthieu : 
 	private static final long serialVersionUID = 1L;
 	private User dest; 
 	private User src ; 
+	private String content ; 
 	
 	public User getSrc() {
 		return src;
@@ -27,8 +28,6 @@ public class Message implements Serializable { //conseil de ruben et matthieu : 
 		this.dest = dest;
 	}
 
-	private String content ; 
-	
 	public Message(String content, User dest, User src) {
 		this.src = src ; 
 		this.dest = dest; 
