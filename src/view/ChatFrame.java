@@ -1,125 +1,77 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
-import controller.BroadcastListener;
-import controller.BroadcastSender;
 import controller.MessageSender;
-import controller.MessageWaiter;
 import database.DatabaseConnection;
-import model.BroadcastType;
+import model.Message;
 import model.User;
 
-public class ChatFrame extends TimerTask implements ActionListener, WindowListener{
-
+public class ChatFrame extends TimerTask implements ActionListener {
 	private JFrame chatFrame;
-	private JButton logoutButton;
-	private int numUsers ; 
-	private JList<String> usersList; 
-	private MessageWaiter mw ; 
-	private String pseudo ; 
-	private BroadcastListener bl ;
-	private JScrollPane listScroller;
-	private JButton startButton; 
-	private Timer timer ; 
-	private ArrayList<ConversationFrame> activeConv = new ArrayList<ConversationFrame>();
+	private JTextPane chatDisplay;
+	private JTextArea msgArea ;
+	
+	private User dest;
+	private User self; 
 
-	public ChatFrame(String pseudo) {
-		this.pseudo = pseudo ; 
+	private int numMsg ;
+	private Timer timer; 
+ 
 
-		bl = new BroadcastListener(this.pseudo)	; 
-		BroadcastSender bs = new BroadcastSender(this.pseudo, BroadcastType.NEW_CONNECTION) ; 
-
-		/*String previousSelf = DatabaseConnection.selectSelf() ;
-		System.out.println("previous self :"+previousSelf);
-		DatabaseConnection.updateSelf(this.pseudo) ;
-		if (!previousSelf.equals(this.pseudo)) {
-			System.out.println("not equal");
-			DatabaseConnection.changePseudoInMessages(this.pseudo, previousSelf);
-		}*/
-		
-		
-		this.numUsers = 0; 
+	public ChatFrame(User dest, User self) {
+		this.dest = dest;
+		this.self = self ; 
+		this.numMsg = 0 ;
 		//Create and set up the window.
-		chatFrame = new JFrame("Chat session opened for "+ this.pseudo);
-		chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//chatFrame.setPreferredSize(new Dimension(250, 100));
-		usersList = new JList<String>(new DefaultListModel<String>()) ; 
+		chatFrame = new JFrame("Chating with "+this.dest.getPseudo());
+		chatFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		chatFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent e) {
+		    	chatFrame.dispose();
+		    	System.out.println("fenÃªtre fermÃ©e conversation frame");
+				timer.cancel();
+				timer.purge(); 
 
-		logoutButton = new JButton("LOGOUT");
-		logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		logoutButton.addActionListener(this);
-
-		startButton = new JButton("Start chat with") ; 
-		startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		startButton.addActionListener(this);
-
-		listScroller = new JScrollPane(usersList);
-		listScroller.setPreferredSize(new Dimension(250, 80));
-		listScroller.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-		//Create a container so that we can add a title around
-		//the scroll pane.  Can't add a title directly to the
-		//scroll pane because its background would be white.
-		//Lay out the label and scroll pane from top to bottom.
-		JPanel listPane = new JPanel();
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
-		JLabel label = new JLabel("Lists of connected users");
-		label.setLabelFor(usersList);
-		listPane.add(label);
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
-		listPane.add(listScroller);
-		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		    }
+		});
+		
 		//Add the widgets.
-		//addWidgets();
-
-		this.mw = new MessageWaiter() ;
+		addWidgets();
+		updateDisplay();
 
 		timer = new Timer(true);
-		timer.scheduleAtFixedRate(this, 0, 100);
-
-		//Lay out the buttons from left to right.
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(logoutButton);
-		buttonPane.add(startButton); 
-
-		Container contentPane = chatFrame.getContentPane();
-		contentPane.add(listPane, BorderLayout.CENTER);
-		contentPane.add(buttonPane, BorderLayout.PAGE_END);
-
+		timer.scheduleAtFixedRate(this, 0, 500);
 		//Display the window.
-		chatFrame.addWindowListener(this);
 		chatFrame.pack();
 		chatFrame.setLocationRelativeTo(null);
 		chatFrame.setVisible(true);
-
 
 	}
 
@@ -127,115 +79,118 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
-		//System.out.println("pudate users");
-		ArrayList<String> users = bl.getListOfConnected();
-		if (users.size() != this.numUsers) {
-			this.numUsers = users.size(); 
-			DefaultListModel<String> l1 = (DefaultListModel<String>) usersList.getModel();  
-			l1.removeAllElements();
-			Iterator<String> it = users.iterator() ; 
-			while (it.hasNext()) {
-				String l=it.next(); 
-				l1.addElement(l); 
-				System.out.println(l);
-			} 
-			chatFrame.validate();
-			chatFrame.repaint();
-		}
-
+		updateDisplay();
 	}
 
+	private void updateDisplay() {
+		
+		ArrayList<String> history = DatabaseConnection.selectHistory(self, dest) ; 
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+
+		if (history.size() > this.numMsg) {
+			
+			List<String> subHistory = history.subList(this.numMsg, history.size()) ;
+			this.numMsg = history.size() ; 
+			
+			for (String a : subHistory) {
+				String[] n = a.split("\t") ;
+				String date = n[3].substring(5, n[3].length()-3) ; 
+				if (!n[0].equals(dest.getIp().getHostAddress())) {
+					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(0,0,204));
+					chatDisplay.setCharacterAttributes(aset, false);
+					Document doc = chatDisplay.getDocument();
+				    try {
+						doc.insertString(doc.getLength(), n[2]+"\n   sent at : "+date+"\n", aset);
+					} catch (BadLocationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if (n[0].equals(dest.getIp().getHostAddress())) {					
+					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(204,0,0));
+					chatDisplay.setCharacterAttributes(aset, false);
+					Document doc = chatDisplay.getDocument();
+					
+					try {
+						doc.insertString(doc.getLength(),  n[2]+"\n   received at : "+date+"\n", aset);
+					} catch (BadLocationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			}
+		}
+	}
+	private void addWidgets() {
+		JPanel chatPanel = new JPanel();
+		chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.PAGE_AXIS));
+		chatPanel.setBackground(new Color(153,203,255));
+		chatFrame.add(chatPanel, BorderLayout.CENTER) ; 
+
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.setBackground(new Color(153,203,255));
+		chatFrame.add(buttonPanel, BorderLayout.PAGE_END) ; 
+		JLabel enterLabel = new JLabel("Enter your message : ") ;
+		enterLabel.setForeground(new Color(0,76,153));
+
+		chatDisplay = new JTextPane();
+		chatDisplay.setEditable(false);
+		chatDisplay.setBackground(new Color(236,245,255));
+		JScrollPane scrollChatDisplay = new JScrollPane(chatDisplay);
+		scrollChatDisplay.setPreferredSize(new Dimension(300,300));
+
+		msgArea = new JTextArea();
+		JScrollPane scrollMsgArea = new JScrollPane(msgArea);
+		msgArea.setBackground(new Color(204,229,255));
+		
+		scrollMsgArea.setPreferredSize(new Dimension(300,50));
+		JButton sendButton = new JButton("SEND") ; 
+		sendButton.addActionListener(this);
+		sendButton.setForeground(new Color(0,76,153));
+		
+		chatPanel.add(scrollChatDisplay);
+		chatPanel.add(enterLabel); 
+		chatPanel.add(scrollMsgArea);
+
+		buttonPanel.add(sendButton); 
+	
+
+
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		String event = e.getActionCommand() ; 
 		System.out.println(event);
-		if(event.equals("LOGOUT")) {
-			chatFrame.dispose(); 
-			this.windowClosing(null);
-			WelcomeFrame wf = new WelcomeFrame(); 
+
+		if (event.equals("SEND")) {
+			Message message = new Message(msgArea.getText(), dest, self);
+			msgArea.setText("");
+			MessageSender ms = new MessageSender(message);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-		//quand on clique sur un item du menu (un user)
-		else if (event.equals("Start chat with")){
-			if (this.usersList.getSelectedValue()==null) {
-				JOptionPane.showMessageDialog(new JFrame(), "You must select a user !");	
-			} else {
-				try {
-					String dest = (String)(this.usersList.getSelectedValue());
-					//on met une ip au pif pour commencer et on la set juste après
-					User distant = new User(dest,InetAddress.getByName("localhost"));
-					distant.setIp(InetAddress.getByName(DatabaseConnection.selectIp(distant.getPseudo())));
-					//DatabaseConnection.selectAllUsers();
-					User self = new User(this.pseudo, MessageSender.getLocalIp()) ; 
-					ConversationFrame cf = new ConversationFrame(distant, self); 
-					activeConv.add(cf);
-				}catch(Exception ex) {ex.printStackTrace();}
-			}
-
-		}
-
-
+			updateDisplay();
+		} 
 	}
 
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
 
+	public Timer getTimer() {
+		return timer;
+	}
+	
+	public JFrame getConversationFrame() {
+		return chatFrame;
 	}
 
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("fenêtre fermée chat frame");
-		bl.stop() ; 
-		mw.stop();
-		timer.cancel();
-		timer.purge();
-		for(ConversationFrame cf : activeConv) {
-			cf.getConversationFrame().dispose();
-			cf.getTimer().cancel();
-			cf.getTimer().purge() ;
-		}
-		
-		BroadcastSender bs = new BroadcastSender(pseudo,BroadcastType.USER_LEAVING) ;
-
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("fenêtre fermée chat frame");
-		bl.stop() ; 
-		mw.stop();
-		timer.cancel();
-		timer.purge();
-		BroadcastSender bs = new BroadcastSender(pseudo,BroadcastType.USER_LEAVING) ;
-	}
-
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
 
 }

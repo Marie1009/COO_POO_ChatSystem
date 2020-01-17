@@ -11,18 +11,18 @@ public class User implements Serializable{
 	private String pseudo; 
 	private InetAddress ip ; 
 	
+	
+	public User(String pseudo, InetAddress ip) {
+		this.pseudo = pseudo;
+		this.ip = ip; 
+	}
+
 	public InetAddress getIp() {
 		return ip;
 	}
 
-
 	public void setIp(InetAddress ip) {
 		this.ip = ip;
-	}
-
-	public User(String pseudo, InetAddress ip) {
-		this.pseudo = pseudo;
-		this.ip = ip; 
 	}
 
 	public String getPseudo() {

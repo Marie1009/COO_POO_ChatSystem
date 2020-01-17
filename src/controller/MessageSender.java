@@ -16,7 +16,10 @@ public class MessageSender implements Runnable {
 
 	private Message message ; 
 
-
+	/** Constructor for MessageSender. Set this.message and start the thread
+	 * 
+	 * @param message
+	 */
 	public MessageSender(Message message) {
 		this.message = message ; 
 		Thread th = new Thread(this); 

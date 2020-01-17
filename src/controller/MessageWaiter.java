@@ -14,16 +14,16 @@ public class MessageWaiter implements Runnable {
 	private Socket link ;
 	private volatile boolean isStopped ; 
 	public static final int CONVERSATION_PORT = 12347;
+	
+	public MessageWaiter() {
+		Thread th = new Thread(this); 
+		th.start();
+	}
 
 	public void run() {
 		System.out.println("Conversation opened");
 
 		this.waitForMessage();
-	}
-
-	public MessageWaiter() {
-		Thread th = new Thread(this); 
-		th.start();
 	}
 
 	public void stop() {
@@ -36,7 +36,7 @@ public class MessageWaiter implements Runnable {
 	}
 
 
-	public void waitForMessage() {
+	private void waitForMessage() {
 		try {
 
 			this.servSocket = new ServerSocket(CONVERSATION_PORT);
@@ -54,7 +54,6 @@ public class MessageWaiter implements Runnable {
 		}catch (Exception e) {
 			if (isStopped) System.err.println("message waiter closed");
 			else e.printStackTrace();}
-		//catch (InterruptedException ie) {this.servSocket.close();}
 	}
 
 

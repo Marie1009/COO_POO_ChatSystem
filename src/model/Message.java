@@ -11,6 +11,12 @@ public class Message implements Serializable { //conseil de ruben et matthieu : 
 	private User dest; 
 	private User src ; 
 	private String content ; 
+
+	public Message(String content, User dest, User src) {
+		this.src = src ; 
+		this.dest = dest; 
+		this.content= content ; 
+	}
 	
 	public User getSrc() {
 		return src;
@@ -26,20 +32,6 @@ public class Message implements Serializable { //conseil de ruben et matthieu : 
 
 	public void setDest(User dest) {
 		this.dest = dest;
-	}
-
-	public Message(String content, User dest, User src) {
-		this.src = src ; 
-		this.dest = dest; 
-		this.content= content ; 
-	}
-	
-	public void send() {
-		System.out.println("Sending your message...");
-	}
-	
-	public String toString() {
-		return " "; 
 	}
 	
 	public String getContent( ) {

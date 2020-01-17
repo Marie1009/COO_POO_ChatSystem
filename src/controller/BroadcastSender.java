@@ -21,19 +21,7 @@ public class BroadcastSender implements Runnable {
 
 	private String pseudo;
 
-	public String getPseudo() {
-		return pseudo;
-	}
-
-	public void setPseudo(String pseudo) {
-		this.pseudo = pseudo;
-	}
-
-	public void setPseudoUnique(boolean pseudoUnique) {
-		this.pseudoUnique = pseudoUnique;
-	}
-
-	/** sender
+		/** sender
 	 * 
 	 * @param localuser
 	 * @param msgType
@@ -116,6 +104,18 @@ public class BroadcastSender implements Runnable {
 
 	public boolean isPseudoUnique() {
 		return pseudoUnique;
+	}
+
+	public String getPseudo() {
+		return pseudo;
+	}
+
+	public void setPseudo(String pseudo) {
+		this.pseudo = pseudo;
+	}
+
+	public void setPseudoUnique(boolean pseudoUnique) {
+		this.pseudoUnique = pseudoUnique;
 	}
 
 
