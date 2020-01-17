@@ -46,6 +46,7 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 	private JScrollPane listScroller;
 	private JButton startButton; 
 	private Timer timer ; 
+	private ArrayList<ConversationFrame> activeConv = new ArrayList<ConversationFrame>();
 
 	public ChatFrame(String pseudo) {
 		this.pseudo = pseudo ; 
@@ -153,7 +154,9 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 		System.out.println(event);
 		if(event.equals("LOGOUT")) {
 			chatFrame.dispose(); 
-			WelcomeFrame wf = new WelcomeFrame(); }
+			this.windowClosing(null);
+			WelcomeFrame wf = new WelcomeFrame(); 
+			}
 		//quand on clique sur un item du menu (un user)
 		else if (event.equals("Start chat with")){
 			if (this.usersList.getSelectedValue()==null) {
@@ -167,6 +170,7 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 					//DatabaseConnection.selectAllUsers();
 					User self = new User(this.pseudo, MessageSender.getLocalIp()) ; 
 					ConversationFrame cf = new ConversationFrame(distant, self); 
+					activeConv.add(cf);
 				}catch(Exception ex) {ex.printStackTrace();}
 			}
 
@@ -189,6 +193,12 @@ public class ChatFrame extends TimerTask implements ActionListener, WindowListen
 		mw.stop();
 		timer.cancel();
 		timer.purge();
+		for(ConversationFrame cf : activeConv) {
+			cf.getConversationFrame().dispose();
+			cf.getTimer().cancel();
+			cf.getTimer().purge() ;
+		}
+		
 		BroadcastSender bs = new BroadcastSender(pseudo,BroadcastType.USER_LEAVING) ;
 
 	}

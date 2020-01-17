@@ -91,8 +91,8 @@ public class BroadcastListener implements Runnable{
 					System.out.println("type 1 = new connection");
 
 					User newUser = new User(pseudo,this.clientAddress);
-					handlePseudoChanging(newUser);
-
+					DatabaseConnection.deleteUser(newUser);
+					DatabaseConnection.insertUser(newUser);
 					this.listOfConnected.add(pseudo);
 					sendConnected(LISTENING_PORT);
 				}
@@ -109,28 +109,11 @@ public class BroadcastListener implements Runnable{
 					User newUser = new User(pseudo,this.clientAddress);
 					this.listOfConnected.add(pseudo);
 					//add in user list
-					handlePseudoChanging(newUser);
+					DatabaseConnection.deleteUser(newUser);
+					DatabaseConnection.insertUser(newUser);
 				}
 			}
 		}		
-	}
-
-	private void handlePseudoChanging(User newUser) {
-		String pseudo = newUser.getPseudo() ; 
-
-		String previous = DatabaseConnection.selectUser(this.clientAddress) ;
-		System.out.println("pseudo "+previous);
-		String ip = DatabaseConnection.selectIp(pseudo) ; 
-		System.out.println("ip "+ip);
-
-
-		if (!previous.equals("")) {
-			DatabaseConnection.deleteUser(pseudo);
-		}
-		if (!ip.equals("")) {
-			DatabaseConnection.deleteUser(pseudo);
-		} 
-		DatabaseConnection.insertUser(newUser);
 	}
 
 

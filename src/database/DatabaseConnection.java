@@ -208,9 +208,9 @@ public class DatabaseConnection {
 		return ip;
 	}
 	
-	public static void deleteUser(String pseudo) {
+	public static void deleteUser(User user) {
 		String sql = "DELETE FROM users "
-				+ "WHERE pseudo = '"+pseudo+"'";
+				+ "WHERE (pseudo = '"+user.getPseudo()+"') OR (ipAddress = '"+user.getIp().getHostAddress()+"')";
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	

@@ -17,6 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -28,13 +29,16 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import controller.BroadcastSender;
 import controller.MessageSender;
 import database.DatabaseConnection;
+import model.BroadcastType;
 import model.Message;
 import model.User;
 
-public class ConversationFrame extends TimerTask implements ActionListener, WindowListener {
+public class ConversationFrame extends TimerTask implements ActionListener {
 	private JFrame conversationFrame;
+	
 	private JScrollPane convPane;
 	private JTextArea convArea;
 	//JTextField messageToSendField ; 
@@ -48,7 +52,6 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 	private JScrollPane convPaneDisplay;
 	private int numMsg ;
 	private Timer timer; 
-	private JButton quitButton ;
 	private JPanel buttonPanel;
 
 	public ConversationFrame(User dest, User self) {
@@ -57,7 +60,18 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 		this.numMsg = 0 ;
 		//Create and set up the window.
 		conversationFrame = new JFrame("Conversation opened with "+this.dest.getPseudo());
-		conversationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		conversationFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		conversationFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent e) {
+		    	conversationFrame.dispose();
+		    	System.out.println("fenÃªtre fermÃ©e conversation frame");
+				timer.cancel();
+				timer.purge(); 
+
+		    }
+		});
+		
 		//	conversationFrame.setPreferredSize(new Dimension(450, 110));
 		convPanel = new JPanel();
 		convPanel.setLayout(new BoxLayout(convPanel, BoxLayout.PAGE_AXIS));
@@ -76,11 +90,14 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 		timer = new Timer(true);
 		timer.scheduleAtFixedRate(this, 0, 500);
 		//Display the window.
-		//conversationFrame.setUndecorated(true);
 		conversationFrame.pack();
 		conversationFrame.setLocationRelativeTo(null);
 		conversationFrame.setVisible(true);
 
+	}
+
+	public Timer getTimer() {
+		return timer;
 	}
 
 	@Override
@@ -94,7 +111,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 		
 		ArrayList<String> history = DatabaseConnection.selectHistory(self, dest) ; 
 		StyleContext sc = StyleContext.getDefaultStyleContext();
-
+		
 
 		if (history.size() > this.numMsg) {
 			this.numMsg = history.size() ; 
@@ -107,7 +124,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
 				    try {
-						doc.insertString(doc.getLength(), n[2]+" sent at : "+n[3]+"\n", aset);
+						doc.insertString(doc.getLength(), n[2]+" \n sent at : "+n[3]+"\n", aset);
 					} catch (BadLocationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -117,8 +134,9 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.GRAY);
 					convDisplay.setCharacterAttributes(aset, false);
 					Document doc = convDisplay.getDocument();
+					
 					try {
-						doc.insertString(doc.getLength(),  n[2]+" received at : "+n[3]+"\n", aset);
+						doc.insertString(doc.getLength(),  n[2]+" \n received at : "+n[3]+"\n", aset);
 					} catch (BadLocationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -132,8 +150,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 	private void addWidgets() {
 		enterMsg = new JLabel("Enter your message : ") ;
 		enterMsg.setBorder(BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, Color.ORANGE, Color.orange));
-		quitButton = new JButton("Quit chat") ; 
-		quitButton.addActionListener(this);
+		
 
 		convDisplay = new JTextPane();
 		convDisplay.setEditable(false);
@@ -158,7 +175,7 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 
 		//convPane.add(messageToSendField); 
 		buttonPanel.add(sendButton); 
-		buttonPanel.add(quitButton); 
+	
 
 
 	}
@@ -180,52 +197,12 @@ public class ConversationFrame extends TimerTask implements ActionListener, Wind
 				e1.printStackTrace();
 			}
 			updateDisplay();
-		} else if(event.equals("Quit chat")) {
-			conversationFrame.dispose();
-			this.windowClosing(null);
-		}
+		} 
 	}
 
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public JFrame getConversationFrame() {
+		return conversationFrame;
 	}
 
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("fenÃªtre fermÃ©e conversation frame");
-		timer.cancel();
-		timer.purge(); 
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
 
 }

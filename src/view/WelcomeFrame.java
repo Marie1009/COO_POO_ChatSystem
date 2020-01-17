@@ -111,6 +111,7 @@ public class WelcomeFrame implements ActionListener, WindowListener {
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// TODO Auto-generated method stub
+
 		System.out.println("fenêtre fermée welcom frame");
 	}
 
