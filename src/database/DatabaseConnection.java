@@ -13,13 +13,12 @@ import model.Message;
 import model.User;
 
 public class DatabaseConnection {
+	private static String dbName = "history.db" ;
 
-
-	private static Connection connect() {
+	
+	public static Connection connect() {
 		Connection conn = null;
-		// db parameters
-		String url = "jdbc:sqlite:db/history.db";
-		// create a connection to the database
+		String url = "jdbc:sqlite:db/"+dbName;
 		try {
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException e) {
@@ -28,27 +27,8 @@ public class DatabaseConnection {
 		return conn;
 	}
 
-	public static void createNewDatabase(String fileName) {
-
-		String url = "jdbc:sqlite:db/" + fileName;
-
-		try (Connection conn = DriverManager.getConnection(url)) {
-			if (conn != null) {
-				DatabaseMetaData meta = conn.getMetaData();
-				System.out.println("The driver name is " + meta.getDriverName());
-				System.out.println("A new database has been created.");
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			
-		}
-	}
-
-
 	public static void createNewTableMessages() {
 
-		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS messages ( "
 				+ "src TEXT,"				
 				+ "dest TEXT,"
@@ -66,7 +46,6 @@ public class DatabaseConnection {
 	
 	public static void createNewTableUsers() {
 
-		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS users ( "
 				+ "pseudo TEXT NOT NULL,"
 				+ "ipAddress TEXT);" ;
@@ -75,7 +54,6 @@ public class DatabaseConnection {
 
 		try (Connection conn = connect();
 				Statement stmt = conn.createStatement()) {
-			// create a new table
 			stmt.execute(sql);
 			stmt.execute(sql2);
 		} catch (SQLException e) {
@@ -120,7 +98,6 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement();
 				ResultSet rs    = stmt.executeQuery(sql)){
 
-			// loop through the result set
 			while (rs.next()) {
 				res.add(rs.getString("src") +  "\t" + 
 						rs.getString("dest") + "\t" +
@@ -140,7 +117,6 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement();
 				ResultSet rs    = stmt.executeQuery(sql)){
 
-			// loop through the result set
 			while (rs.next()) {
 				System.out.println(rs.getString("pseudo") +  "\t" + 
 						rs.getString("ipAddress")) ;
@@ -161,7 +137,6 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
-			// loop through the result set
 			while (rs.next()) {
 				res.add(rs.getString("src") +  "\t" + 
 						rs.getString("dest") + "\t" +
@@ -183,7 +158,6 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
-			// loop through the result set
 			if (rs.next())
 				ip = rs.getString("ipAddress") ;
 		} catch (SQLException e) {

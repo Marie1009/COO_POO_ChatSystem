@@ -16,7 +16,7 @@ public class MessageSender implements Runnable {
 
 	private Message message ; 
 
-	/** Constructor for MessageSender. Set this.message and start the thread
+	/** Constructor for MessageSender. Starts a new thread with the given message.
 	 * 
 	 * @param message
 	 */
@@ -26,8 +26,10 @@ public class MessageSender implements Runnable {
 		th.start();
 	}
 
+	/** Sends 
+	 * 
+	 */
 	public void run() {
-		System.out.println("Conversation opened");
 		try {
 			Socket s = new Socket(message.getDest().getIp(), MessageWaiter.CONVERSATION_PORT) ; 
 			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());

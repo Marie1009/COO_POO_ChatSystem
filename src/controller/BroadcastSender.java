@@ -4,38 +4,27 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-
-import database.DatabaseConnection;
 import model.BroadcastType;
-import model.User;
 
+/** Permits sending different types of UDP broadcast 
+ * (and handling some answers). 
+ * 
+ * @author Jeanne Bertrand and Marie Laur
+ *
+ */
 public class BroadcastSender implements Runnable {
+
 	private DatagramSocket ds ;  
 	private BroadcastType msgType;
-	private boolean pseudoUnique= true;
-
 	private String pseudo;
 
-		/** sender
+	/** Constructor. Starts a new thread with the given message type and pseudo
+	 * and instantiates a DatagramSocket.
 	 * 
-	 * @param localuser
+	 * @param pseudo
 	 * @param msgType
-	 * @param localport
 	 */
-	public BroadcastSender(BroadcastType msgType) {
-		this.msgType = msgType;
-		try {
-			this.ds = new DatagramSocket() ; 
-		} catch (IOException e) {e.printStackTrace();}
-		Thread th = new Thread(this); 
-		th.start();
-	}
-
 	public BroadcastSender(String pseudo,BroadcastType msgType) {
 		this.msgType = msgType;
 		this.pseudo=pseudo;
@@ -47,7 +36,9 @@ public class BroadcastSender implements Runnable {
 	}
 
 
-
+	/** Creates a message given type and calls for sendBroadcast()
+	 * 
+	 */
 	public void run() {
 		String message="";
 		switch(this.msgType) {
@@ -69,54 +60,38 @@ public class BroadcastSender implements Runnable {
 		}
 	}
 
-
-	public boolean getBroadcastAnswer() {
+	/** Waits for answer to a PSEUDO_UNIQUE broadcast. If timeout without receiving anything,
+	 * the pseudo is considered unique. 
+	 * 
+	 * @return true if pseudo unique, false otherwise
+	 */
+	public boolean isUnique() {
 		boolean res=false; 
 		try {
 			try {
-				ds.setSoTimeout(1000);   // set the timeout in millisecounds
+				ds.setSoTimeout(1000); 
 				byte[] buf = new byte[256] ; 
 				DatagramPacket inPacket = new DatagramPacket(buf, buf.length); 
 				ds.receive(inPacket); 
 				String msg = new String(inPacket.getData(), 0, inPacket.getLength()) ;
-				System.out.println(msg);
 				if (msg.equals(this.pseudo))
 					res = false;
 			}catch(SocketTimeoutException e1) {
-				System.out.println("timeout reached");
 				ds.close(); 
 				res =  true;}
 		}catch(IOException e) {e.printStackTrace();}
 		return res ;
 	}
 
-
+	/** Sends UDP broadcast to 255.255.255.255 IP address and LISTENING_PORT port. 
+	 * 
+	 * @param message to be sent
+	 */
 	private void sendBroadcast(String message) {
 		try {
 			DatagramPacket outPacket= new DatagramPacket(message.getBytes(), message.length(),InetAddress.getByName("255.255.255.255"), BroadcastListener.LISTENING_PORT);
 			ds.send(outPacket);
-			byte[] buffer = new byte[256]; 
-			DatagramPacket inPacket= new DatagramPacket(buffer, buffer.length);
-			System.out.println("broadcast envoyé");
 		}catch(Exception e) {e.printStackTrace();}
 
 	}
-
-	public boolean isPseudoUnique() {
-		return pseudoUnique;
-	}
-
-	public String getPseudo() {
-		return pseudo;
-	}
-
-	public void setPseudo(String pseudo) {
-		this.pseudo = pseudo;
-	}
-
-	public void setPseudoUnique(boolean pseudoUnique) {
-		this.pseudoUnique = pseudoUnique;
-	}
-
-
 }

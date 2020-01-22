@@ -76,7 +76,7 @@ public class WelcomeFrame implements ActionListener{
 			JOptionPane.showMessageDialog(new JFrame(), "Pseudo must be at least 3 characters");
 		} else {
 			BroadcastSender bs = new BroadcastSender(pseudo, BroadcastType.PSEUDO_UNIQUE);
-			if (bs.getBroadcastAnswer()) {
+			if (bs.isUnique()) {
 				MenuFrame cf = new MenuFrame(pseudo);
 				firstpageFrame.setVisible(false);
 			}else {
