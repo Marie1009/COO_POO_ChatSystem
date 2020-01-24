@@ -17,6 +17,7 @@ public class Launcher {
 		DatabaseConnection.createNewTableUsers();
 		DatabaseConnection.createNewTableMessages();
 		
+		@SuppressWarnings("unused")
 		WelcomeFrame login = new WelcomeFrame();
 	}
 

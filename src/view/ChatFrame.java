@@ -32,42 +32,57 @@ import database.DatabaseConnection;
 import model.Message;
 import model.User;
 
+/** Frame used to chat with another user. Instantiated in the MenuFrame. 
+ * To access this frame, one need to be connected and to choose a user to chat with. 
+ * 
+ * @author Jeanne Bertrand and Marie Laur 
+ *
+ */
 public class ChatFrame extends TimerTask implements ActionListener {
 	private JFrame chatFrame;
 	private JTextPane chatDisplay;
 	private JTextArea msgArea ;
-	
+
 	private User dest;
 	private User self; 
 
 	private int numMsg ;
 	private Timer timer; 
- 
 
+
+	/** Constructor. Sets the destination user and self and the number of displayed messages to 0. 
+	 * Launches a timed thread at fixed rate to update the message display. 
+	 * 
+	 * @param dest
+	 * @param self
+	 */
 	public ChatFrame(User dest, User self) {
 		this.dest = dest;
 		this.self = self ; 
 		this.numMsg = 0 ;
+
 		//Create and set up the window.
 		chatFrame = new JFrame("Chating with "+this.dest.getPseudo());
 		chatFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		chatFrame.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent e) {
-		    	chatFrame.dispose();
-		    	System.out.println("fenÃªtre fermÃ©e conversation frame");
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				chatFrame.dispose();
+				System.out.println("ChatFrame closed");
 				timer.cancel();
 				timer.purge(); 
 
-		    }
+			}
 		});
-		
+
 		//Add the widgets.
 		addWidgets();
 		updateDisplay();
 
+		//Launches the timed task
 		timer = new Timer(true);
 		timer.scheduleAtFixedRate(this, 0, 500);
+
 		//Display the window.
 		chatFrame.pack();
 		chatFrame.setLocationRelativeTo(null);
@@ -75,23 +90,27 @@ public class ChatFrame extends TimerTask implements ActionListener {
 
 	}
 
-
+	/** Launches the updateDisplay() method.  
+	 * 
+	 */
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		updateDisplay();
 	}
 
+	/** Updates the messages display in the frame. Adds new messages to the chat display. 
+	 * Blue for sent messages and red for received messages. 
+	 * 
+	 */
 	private void updateDisplay() {
-		
 		ArrayList<String> history = DatabaseConnection.selectHistory(self, dest) ; 
 		StyleContext sc = StyleContext.getDefaultStyleContext();
 
 		if (history.size() > this.numMsg) {
-			
+
 			List<String> subHistory = history.subList(this.numMsg, history.size()) ;
 			this.numMsg = history.size() ; 
-			
+
 			for (String a : subHistory) {
 				String[] n = a.split("\t") ;
 				String date = n[3].substring(5, n[3].length()-3) ; 
@@ -99,10 +118,9 @@ public class ChatFrame extends TimerTask implements ActionListener {
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(0,0,204));
 					chatDisplay.setCharacterAttributes(aset, false);
 					Document doc = chatDisplay.getDocument();
-				    try {
+					try {
 						doc.insertString(doc.getLength(), n[2]+"\n   sent at : "+date+"\n", aset);
 					} catch (BadLocationException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -110,18 +128,20 @@ public class ChatFrame extends TimerTask implements ActionListener {
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(204,0,0));
 					chatDisplay.setCharacterAttributes(aset, false);
 					Document doc = chatDisplay.getDocument();
-					
+
 					try {
 						doc.insertString(doc.getLength(),  n[2]+"\n   received at : "+date+"\n", aset);
 					} catch (BadLocationException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
 				}
 			}
 		}
 	}
+
+	/** Adds widgets in the frame. 
+	 * 
+	 */
 	private void addWidgets() {
 		JPanel chatPanel = new JPanel();
 		chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.PAGE_AXIS));
@@ -147,48 +167,57 @@ public class ChatFrame extends TimerTask implements ActionListener {
 		msgArea = new JTextArea();
 		JScrollPane scrollMsgArea = new JScrollPane(msgArea);
 		msgArea.setBackground(new Color(204,229,255));
-		
+
 		scrollMsgArea.setPreferredSize(new Dimension(300,50));
 		JButton sendButton = new JButton("SEND") ; 
 		sendButton.addActionListener(this);
 		sendButton.setForeground(new Color(0,76,153));
-		
+
 		chatPanel.add(scrollChatDisplay);
 		chatPanel.add(enterLabel); 
 		chatPanel.add(scrollMsgArea);
 
 		buttonPanel.add(sendButton); 
-	
+
 
 
 	}
 
+	/** Instantiates a MessageSender with the content of the message area when the SEND button is clicked.
+	 * 
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		String event = e.getActionCommand() ; 
-		System.out.println(event);
 
 		if (event.equals("SEND")) {
 			Message message = new Message(msgArea.getText(), dest, self);
 			msgArea.setText("");
+
+			@SuppressWarnings("unused")
 			MessageSender ms = new MessageSender(message);
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			updateDisplay();
 		} 
 	}
 
-
+	/** Returns the timer.
+	 * 
+	 * @return the timer
+	 */
 	public Timer getTimer() {
 		return timer;
 	}
-	
-	public JFrame getConversationFrame() {
+
+	/** Returns the chat frame
+	 * 
+	 * @return the frame 
+	 */
+	public JFrame getChatFrame() {
 		return chatFrame;
 	}
 
