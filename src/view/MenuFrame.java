@@ -59,6 +59,7 @@ public class MenuFrame extends TimerTask implements ActionListener, WindowListen
 	 * @param pseudo
 	 */
 	public MenuFrame(String pseudo) {
+		
 		this.pseudo = pseudo ; 
 		this.numUsers = 0; 
 
@@ -119,6 +120,7 @@ public class MenuFrame extends TimerTask implements ActionListener, WindowListen
 	 * 
 	 */
 	private void addWidget() {
+		
 		this.usersList = new JList<String>(new DefaultListModel<String>()) ; 
 		this.usersList.setBackground(new Color(208,247,228));
 

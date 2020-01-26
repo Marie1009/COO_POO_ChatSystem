@@ -43,8 +43,8 @@ public class ChatFrame extends TimerTask implements ActionListener {
 	private JTextPane chatDisplay;
 	private JTextArea msgArea ;
 
-	private User dest;
-	private User self; 
+	private User distant;
+	private User local; 
 
 	private int numMsg ;
 	private Timer timer; 
@@ -57,12 +57,12 @@ public class ChatFrame extends TimerTask implements ActionListener {
 	 * @param self
 	 */
 	public ChatFrame(User dest, User self) {
-		this.dest = dest;
-		this.self = self ; 
+		this.distant = dest;
+		this.local = self ; 
 		this.numMsg = 0 ;
 
 		//Create and set up the window.
-		chatFrame = new JFrame("Chating with "+this.dest.getPseudo());
+		chatFrame = new JFrame("Chating with "+this.distant.getPseudo());
 		chatFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		chatFrame.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
@@ -103,7 +103,7 @@ public class ChatFrame extends TimerTask implements ActionListener {
 	 * 
 	 */
 	private void updateDisplay() {
-		ArrayList<String> history = DatabaseConnection.selectHistory(self, dest) ; 
+		ArrayList<String> history = DatabaseConnection.selectHistory(local, distant) ; 
 		StyleContext sc = StyleContext.getDefaultStyleContext();
 
 		if (history.size() > this.numMsg) {
@@ -114,7 +114,7 @@ public class ChatFrame extends TimerTask implements ActionListener {
 			for (String a : subHistory) {
 				String[] n = a.split("\t") ;
 				String date = n[3].substring(5, n[3].length()-3) ; 
-				if (!n[0].equals(dest.getIp().getHostAddress())) {
+				if (!n[0].equals(distant.getIp().getHostAddress())) {
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(0,0,204));
 					chatDisplay.setCharacterAttributes(aset, false);
 					Document doc = chatDisplay.getDocument();
@@ -124,7 +124,7 @@ public class ChatFrame extends TimerTask implements ActionListener {
 						e.printStackTrace();
 					}
 				}
-				else if (n[0].equals(dest.getIp().getHostAddress())) {					
+				else if (n[0].equals(distant.getIp().getHostAddress())) {					
 					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, new Color(204,0,0));
 					chatDisplay.setCharacterAttributes(aset, false);
 					Document doc = chatDisplay.getDocument();
@@ -191,7 +191,7 @@ public class ChatFrame extends TimerTask implements ActionListener {
 		String event = e.getActionCommand() ; 
 
 		if (event.equals("SEND")) {
-			Message message = new Message(msgArea.getText(), dest, self);
+			Message message = new Message(msgArea.getText(), distant, local);
 			msgArea.setText("");
 
 			@SuppressWarnings("unused")
