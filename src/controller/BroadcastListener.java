@@ -11,20 +11,25 @@ import java.util.regex.Pattern;
 import database.DatabaseConnection;
 import model.User;
 
+/** Handles incoming UPD broadcasts
+ * 
+ * @author Jeanne Bertrand and Marie Laur
+ *
+ */
 public class BroadcastListener implements Runnable{
 
 	private String localuser;
 	public static final int LISTENING_PORT = 50005;
 	private DatagramSocket ds;
 	private InetAddress clientAddress;
+	private int clientPort; 
 	private String rcvdMessage;
 	private ArrayList<String> listOfConnected = new ArrayList<String>();
-	private volatile boolean isStopped ; 
+	private volatile boolean isStopped ;
 
-	/** receiver	
+	/** Constructor. Starts the listening thread and instantiates a DatagramSocket with LISTENING_PORT
 	 * 
-	 * @param localuser
-	 * @param localport
+	 * @param localuser pseudo
 	 */
 	public BroadcastListener(String localuser) {
 		this.localuser = localuser ; 
@@ -36,10 +41,17 @@ public class BroadcastListener implements Runnable{
 		th.start();
 	}
 
+	/** Launches waitForBroadcast()
+	 * 
+	 */
 	public void run() {
 		this.waitForBroadcast();
 	}
 
+	/** Listens for incoming broadcasts and calls response() to process an answer.
+	 *  Carries on listening unless the stop() method is called. 
+	 * 
+	 */
 	private void waitForBroadcast() {
 
 		byte[] buf = new byte[256] ; 
@@ -50,94 +62,113 @@ public class BroadcastListener implements Runnable{
 				System.out.println("received");
 			} catch (IOException e) { 
 				if (isStopped) System.err.println("ds closed");
-				else e.printStackTrace();}
+				else e.printStackTrace();
+			}
 
 			this.clientAddress= inPacket.getAddress();
-
-			int port = inPacket.getPort() ; 
+			this.clientPort = inPacket.getPort() ; 
 			this.rcvdMessage = new String(inPacket.getData(), 0, inPacket.getLength()) ;
-			System.out.println(rcvdMessage);
-			this.response(port);
-		}
 
+			System.out.println("BroadcastListener has received \""+rcvdMessage+"\" from "+this.clientAddress.getHostAddress());
+			this.response();
+		}
 	}
 
+	/**
+	 * Stops the running thread by changing "isStopped" value and closing the DatagramSocket. 
+	 */
 	public void stop() {
 		isStopped = true ; 
 		try {
 			ds.close();
-			System.out.println("socket ds closed");
 		} catch (Exception e) {e.printStackTrace();}		
 	}
 
-	private void response(int port) {
+	/**
+	 * Matches the received message with four different types :
+	 * pseudo unique, new connection, user_leaving
+	 * and connected (can only be an answer to NEW_CONNECTION, can not be sent with a BroadcastSender)
+	 * 
+	 * Checks if the pseudo contained in the received message is equal to the localuser one. 
+	 * If so, the message is not handled (except for type PSEUDO_UNIQUE).
+	 */
+	private void response() {
 		String regex= "^([0-3])(\\w*)$" ; 
 		Pattern p = Pattern.compile(regex) ;      
 		Matcher m = p.matcher(this.rcvdMessage) ;    
 
 		if(m.matches()){
 			String type = m.group(1); 
-			String pseudo = m.group(2) ; 
+			String pseudo = m.group(2) ;
+
+
 			if (type.equals("0")) {
-				System.out.println("type 0 = pseudo unique ?");
+				//type 0 = is pseudo unique ?
 				if (localuser.contentEquals(pseudo)) {
-					sendNotUnique(port);
+					sendNotUnique();
 				}
 			} else if (type.equals("1"))  {
-				if (!localuser.equals(pseudo)) {
-					System.out.println("type 1 = new connection");
-
+				//type 1 = new connection
+				if (!localuser.contentEquals(pseudo)) {
 					User newUser = new User(pseudo,this.clientAddress);
+					this.listOfConnected.add(pseudo);
+
+					//delete first and insert after to avoid 
+					//having two same pseudos or two same IPs in the DB
 					DatabaseConnection.deleteUser(newUser);
 					DatabaseConnection.insertUser(newUser);
-					this.listOfConnected.add(pseudo);
-					sendConnected(LISTENING_PORT);
+					sendConnected();
 				}
-
 			} else if (type.equals("2")) {
-				System.out.println("type 2 = user leaving");
-				//remove from user list
+				//type 2 = user leaving
 				this.listOfConnected.remove(pseudo);
 
-
 			} else if (type.equals("3")) {
-				if (!localuser.equals(pseudo)) {
-					System.out.println("type 3 = connection");
+				//type 3 = connected
+				if (!localuser.contentEquals(pseudo)) {
 					User newUser = new User(pseudo,this.clientAddress);
 					this.listOfConnected.add(pseudo);
-					//add in user list
+
+					//delete first and insert after to avoid 
+					//having two same pseudos or two same IPs in the DB
 					DatabaseConnection.deleteUser(newUser);
 					DatabaseConnection.insertUser(newUser);
+
 				}
-			}
-		}		
+			}	
+		}
 	}
 
 
-	private void sendConnected(int port) {
+	/** Answers to a NEW_CONNECTION message. 
+	 * This message type is sent by a new user in the network, the other users say "Hi".
+	 * 
+	 */
+	private void sendConnected() {
 		String answer = "3"+this.localuser ;
-		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, port);
+		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, this.clientPort);
 		try {
 			this.ds.send(outPacket) ; 
-			System.out.println("response connected sent");
-		} catch (IOException e) {System.err.println("send() failed");}
+		} catch (IOException e) {e.printStackTrace();}
 	}
 
-	private void sendNotUnique(int port) {
+	/** Answers to a PSEUDO_UNIQUE message in case the pseudo is equal to localuser one. 
+	 * 
+	 */
+	private void sendNotUnique() {
 		String answer = this.localuser;
-		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, port);
+		DatagramPacket outPacket= new DatagramPacket(answer.getBytes(), answer.length(),this.clientAddress, LISTENING_PORT);
 		try {
 			this.ds.send(outPacket) ; 
-			System.out.println("response not unique sent");
-		} catch (IOException e) {System.err.println("send() failed");}
+		} catch (IOException e) {e.printStackTrace();}
 	}
 
+	/** Gets listOfConnected users 
+	 * 
+	 * @return list of connected users
+	 */
 	public ArrayList<String> getListOfConnected() {
 		return listOfConnected;
-	}
-
-	public void setListOfConnected(ArrayList<String> listOfConnected) {
-		this.listOfConnected = listOfConnected;
 	}
 
 }

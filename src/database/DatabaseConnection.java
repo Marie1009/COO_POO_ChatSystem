@@ -1,7 +1,6 @@
 package database;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,14 +11,22 @@ import java.util.ArrayList;
 import model.Message;
 import model.User;
 
+/** Handles connections, queries and updates in the local database. 
+ * Using SQLite. 
+ * 
+ * @author Jeanne Bertrand and Marie Laur
+ *
+ */
 public class DatabaseConnection {
+	private static String dbName = "history.db" ;
 
-
-	private static Connection connect() {
+	/** Gets the connection to the database (in the ./db directory).
+	 * 
+	 * @return the connection
+	 */
+	public static Connection connect() {
 		Connection conn = null;
-		// db parameters
-		String url = "jdbc:sqlite:db/history.db";
-		// create a connection to the database
+		String url = "jdbc:sqlite:db/"+dbName;
 		try {
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException e) {
@@ -28,27 +35,15 @@ public class DatabaseConnection {
 		return conn;
 	}
 
-	public static void createNewDatabase(String fileName) {
-
-		String url = "jdbc:sqlite:db/" + fileName;
-
-		try (Connection conn = DriverManager.getConnection(url)) {
-			if (conn != null) {
-				DatabaseMetaData meta = conn.getMetaData();
-				System.out.println("The driver name is " + meta.getDriverName());
-				System.out.println("A new database has been created.");
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			
-		}
-	}
-
-
+	/** Creates the messages table (if not exists) with four columns : 
+	 * source IP address
+	 * destination IP address
+	 * message text
+	 * timestamp
+	 *  
+	 */
 	public static void createNewTableMessages() {
 
-		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS messages ( "
 				+ "src TEXT,"				
 				+ "dest TEXT,"
@@ -57,32 +52,38 @@ public class DatabaseConnection {
 
 		try (Connection conn = connect();
 				Statement stmt = conn.createStatement()) {
-			// create a new table
 			stmt.execute(sql);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
+	/** Creates the users table (if not exists) with two columns :
+	 * pseudo (with a unique index)
+	 * IP address
+	 * 
+	 */
 	public static void createNewTableUsers() {
 
-		// SQL statement for creating a new table
 		String sql = "CREATE TABLE IF NOT EXISTS users ( "
 				+ "pseudo TEXT NOT NULL,"
 				+ "ipAddress TEXT);" ;
-		
+
 		String sql2 = "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_pseudo ON users(pseudo);";
 
 		try (Connection conn = connect();
 				Statement stmt = conn.createStatement()) {
-			// create a new table
 			stmt.execute(sql);
 			stmt.execute(sql2);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
+	/** Inserts a Message in the messages table of the DB. 
+	 * 
+	 * @param m the Message
+	 */
 	public static void insertMessage(Message m) {
 		String sql = "INSERT INTO messages(src, dest, message) VALUES(?,?,?)";
 
@@ -97,10 +98,13 @@ public class DatabaseConnection {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
+	/** Inserts a User in the users table of the DB. 
+	 * 
+	 * @param u the User
+	 */
 	public static void insertUser(User u ) {
 		String sql = "INSERT OR REPLACE INTO users(pseudo, ipAddress) VALUES(?,?)";
-		System.out.println("j'insere dans la db");
 		try (Connection conn = connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)) 
 		{
@@ -113,6 +117,10 @@ public class DatabaseConnection {
 		}
 	}
 
+	/** Selects all the messages from the messages table of the DB. 
+	 * 
+	 * @return the list of messages in the format "src\tdest\tmessage\tdate\t"
+	 */
 	public static ArrayList<String> selectAllMessages(){
 		String sql = "SELECT src, dest, message, date FROM messages";
 		ArrayList<String> res = new ArrayList<String>() ; 
@@ -120,7 +128,6 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement();
 				ResultSet rs    = stmt.executeQuery(sql)){
 
-			// loop through the result set
 			while (rs.next()) {
 				res.add(rs.getString("src") +  "\t" + 
 						rs.getString("dest") + "\t" +
@@ -133,35 +140,45 @@ public class DatabaseConnection {
 		return res; 
 	}
 
-	public static void selectAllUsers(){
+	/** Selects all the users from the users table of the DB.
+	 * 
+	 * @return the list of users in the format "pseudo\tipAddress\t"
+	 */
+	public static ArrayList<String> selectAllUsers(){
 		String sql = "SELECT pseudo, ipAddress FROM users";
 
+		ArrayList<String> res = new ArrayList<String>() ; 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement();
 				ResultSet rs    = stmt.executeQuery(sql)){
 
-			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getString("pseudo") +  "\t" + 
+				res.add(rs.getString("pseudo") +  "\t" + 
 						rs.getString("ipAddress")) ;
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+		return res ; 
 	}
-	
-	public static ArrayList<String> selectHistory(User src, User dest){
+
+	/** Selects all the messages with the couple of given Users in source or destination, in either way. 
+	 *  
+	 * @param first the first User to be searched for
+	 * @param second the second User to be searched for
+	 * @return the list of messages (same format than selectAllMessages())
+	 */
+	public static ArrayList<String> selectHistory(User first, User second){
 		String sql = "SELECT src, dest, message, date "
 				+ "FROM messages "
-				+ "WHERE (src = '"+src.getIp().getHostAddress()+"' AND dest = '"+dest.getIp().getHostAddress()+"')"
-						+ " OR (src = '"+dest.getIp().getHostAddress()+"' AND dest = '"+src.getIp().getHostAddress()+"')";
+				+ "WHERE (src = '"+first.getIp().getHostAddress()+"' AND dest = '"+second.getIp().getHostAddress()+"')"
+				+ " OR (src = '"+second.getIp().getHostAddress()+"' AND dest = '"+first.getIp().getHostAddress()+"')";
 
 		ArrayList<String> res = new ArrayList<String>() ; 
 		try (Connection conn = connect();
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
-			// loop through the result set
 			while (rs.next()) {
 				res.add(rs.getString("src") +  "\t" + 
 						rs.getString("dest") + "\t" +
@@ -173,7 +190,12 @@ public class DatabaseConnection {
 
 		} return res; 
 	}
-	
+
+	/** Returns the IP address of the user with the given pseudo. 
+	 * 
+	 * @param pseudo to be searched for
+	 * @return the IP address 
+	 */
 	public static String selectIp(String pseudo){
 		String sql = "SELECT ipAddress "
 				+ "FROM users "
@@ -183,17 +205,20 @@ public class DatabaseConnection {
 				Statement stmt  = conn.createStatement())
 		{	
 			ResultSet rs    = stmt.executeQuery(sql) ; 
-			// loop through the result set
 			if (rs.next())
 				ip = rs.getString("ipAddress") ;
 		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
-		
+
 		return ip;
 	}
-	
+
+	/** Deletes a user from the users table of the DB. 
+	 * 
+	 * @param user to removed
+	 */
 	public static void deleteUser(User user) {
 		String sql = "DELETE FROM users "
 				+ "WHERE (pseudo = '"+user.getPseudo()+"') OR (ipAddress = '"+user.getIp().getHostAddress()+"')";
