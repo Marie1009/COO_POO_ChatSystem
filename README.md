@@ -13,6 +13,6 @@ The SQL Java library is already contained in the lib directory of the project.
 
 The db directory containing the local database must be empty for the first launch. Just check the db directory exists, in the root of the project, and that it is empty before launching.
 
-To launch the project you can either launch via Eclipse with the Run button (or right click on the Launcher class and select Run As > Java Application or launch the launcher.jar at the project root. To do so open a terminal in the COO_POO_ChatSystem directory and execute **./launcher.jar**  
+To launch the project you can either launch via Eclipse with the Run button (or right click on the Launcher class and select *Run As > Java Application* or launch the launcher.jar at the project root. To do so open a terminal in the COO_POO_ChatSystem directory and execute **./launcher.jar**  
 
 
