@@ -1,6 +1,6 @@
 # How to install and launch ChatSystem project
 ## Environement
-We have used Java 13.0.2 and SQLite JDBC 3.30.1 for our project.
+We have used Java 13.0.2 and SQLite JDBC 3.30.1 for our **Eclipse** project.
 
 ## Installation
 Just clone or download the project from GitHub with this link :
