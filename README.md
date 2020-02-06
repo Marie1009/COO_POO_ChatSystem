@@ -15,6 +15,7 @@ To consult the JavaDoc provided with our project just open the index.html file i
 
 ## Launching
 The application was designed to work on a **local network**, for example the INSA GEI network. 
+
 It is important to use a different computer for each launch of the ChatSystem. Indeed, some port numbers are common to all instances and there will be binding errors with several launches in the same system. The other point is that these different computer must have different files systems (for example connecting in ssh to another computer with the same INSA login would not be good, except if the project is cloned twice in two different places) otherwise all the running applications would be updating the same database. 
 The db directory containing the local database must be empty for the first launch. Just check the db directory exists, in the root of the project, and that it is empty before launching.
 
